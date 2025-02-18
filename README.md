@@ -13,7 +13,7 @@ To run MoDorado, it is necessary to have used the latest version Dorado for base
 Additionally, for visualisation and easy processing, the options `--emit-moves --emit-sam` should be used.
 
 
-## Step 1: Alignment with Parasail and read filtering
+## Step 1: alignment with Parasail and read filtering
 To run [Parasail](https://github.com/jeffdaily/parasail), we first need to convert `.sam` output from Dorado by `samtools fastq -T "*" basecalls.sam > basecalls.fastq`.  
 ```
 parasail_aligner -a sw_trace_striped_sse41_128_16 -M 2 -X 1 -c 10 -x -d  -O SAMH -t 6 -b 1000 -f data/reference.fasta -q basecalls.fastq -g basecalls_parasail_reference.sam
@@ -27,14 +27,14 @@ And filter full-length reads by
 python filter_fulllen.py basecalls_parasail_reference_filtered.sam
 ```
 
-## Step 2: Parse Dorado model predictions
+## Step 2: parsing Dorado model predictions
 Dorado stores the modification information in `MM` and `ML` tags (for detailed description see [the SAM documentation](https://samtools.github.io/hts-specs/SAMv1.pdf)). To parse these into a data structure from each tRNA and their nucleotides for each sequencing sample (e.g. FH017, FH028, etc), we run
 ```
 python parse_dorado.py data/reference.fasta alignment FH017,FH028
 ```
 Here, all sequencing samples can be written as a long string separated by a comma, i.e. `sample1,sample2,sample3,...,samplen`. 
 
-## Step 3: Distribution comparison with KL Divergence 
+## Step 3: distribution comparison with KL Divergence 
 With Dorado results parsed, we can now compare two samples at each position of the tRNAs using the KL Divergence. To do this, we run 
 ```
 python dist_compare.py output/trna2mods.pckl data/reference.fasta data/20241031_data_shifted_mods.xlsx FH028,FH017 100
