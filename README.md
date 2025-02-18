@@ -8,7 +8,7 @@ MoDorado is a light-weight algorithm that detects modification by off-label use 
 The current version of MoDorado supports analysis of tRNA modifications, with future extensions planned for mRNA and other types of RNAs.
 
 ## Step 0: Basecalling with Dorado
-To run MoDorado, it is necessary to have used the latest version Dorado for basecalling and modification calling. Currently for RNA004 data, this is the rna004_130bps_sup@v5.1.0 model for basecalling, with the four models for m6A/Ψ/m5C/inosine selected. 
+To run MoDorado, it is necessary to have used the latest version Dorado for basecalling and modification calling. Currently for RNA004 data, this is the `rna004_130bps_sup@v5.1.0` model for basecalling, with the four models for m6A/Ψ/m5C/inosine selected. 
 
 Additionally, for visualisation and easy processing, the options `--emit-moves --emit-sam` should be used.
 
