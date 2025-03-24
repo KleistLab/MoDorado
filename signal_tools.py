@@ -24,13 +24,16 @@ def get_signal(dim, x, signal_calibrated, signal_cpts, stride):
 def extract_signal(args):
     reference = pysam.FastaFile(args.ref)
     samples = args.samples.split(",")
+    pod5s = args.pod5_dir.split(",")
     n_sub = int(args.subsample)
 
     ref2sigs = {}
-    for sample in samples:
+    for i in range(len(samples)):
+        sample = samples[i]
+        pod5_file = pod5s[i]
         print(sample)
         samfile = pysam.AlignmentFile("data/" + sample + "_parasail_reference_filtered_fulllen.sam", "r")
-        pod5file = pod5.DatasetReader("../../nanopore/hu/pod5/" + sample + ".pod5") 
+        pod5file = pod5.DatasetReader(pod5_file) 
 
         ref2sigs[sample] = {}
         for ref in reference.references:
@@ -137,6 +140,7 @@ if __name__ == "__main__":
     extract_parser = subparsers.add_parser("extract", help="Extract signals from a list of samples")
     extract_parser.add_argument("--samples", type=str, required=True, help="A list of samples separated by comma, e.g. FH017,FH018,FH019")
     extract_parser.add_argument("--ref", type=str, required=True, help="The reference fasta file")
+    extract_parser.add_argument("--pod5_dir", type=str, required=True, help="The locations of the pod5 files separated by comma, e.g. FH017.pod5,FH028.pod5")
     extract_parser.add_argument("--subsample", type=str, required=True, help="The (maximum) number of subsamples per tRNA (which is not necessarily reached by low coverage samples)")
     extract_parser.set_defaults(func=extract_signal)
 
