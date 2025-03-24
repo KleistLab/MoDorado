@@ -42,3 +42,22 @@ python dist_compare.py output/trna2mods.pckl data/reference.fasta data/20241031_
 Here, the samples are again listed as a string separated by commas (when more than 2 samples are added, the wildtype sample is assumed to be the first in the list). The `100` at the end is a minimum coverage threshold for each tRNA.
 
 This will generate a kl_symmetric_mincov100.tsv file, which contains the KL Divergence for each position of each tRNA. We provided a small example input to in the `data` folder (which results in 0 KLs when the minimum coverage is not fulfilled).
+
+## Plotting functionalities
+To reproduce the signal plots in the manuscript, we can do the following two steps. 
+### Signal extraction by subsampling reads from a pod5 file
+First, we subsample reads from the pod5 files by running
+```
+python signal_tools.py extract --samples FH017,FH028 --ref data/reference.fasta --pod5_dir pod5/FH017.pod5,pod5/FH028.pod5  --subsample 200
+```
+Here, we need to specify the two samples, and the location of their pod5 files. The subsample parameter is the number of subsampled reads.
+This generates a pckl file in the output folder, containing the extracted signals for subsequent analysis or plotting.
+### Plotting the signals of two samples (example Fig.5B in paper)
+We can make signal plots comparing two samples by running the following. The example given is for Fig.5B of the manuscript on bioRxiv. 
+```
+python signal_tools.py plot --sample1 FH028 --sample2 FH017 --signals output/signals_FH017,FH028_200.pckl --trna tRNA-Cys-GCA-1-1 --pos 58 --kmer 11
+```
+Here, we need to specify the signal file from the first step, the name of the tRNA, the position to be plotted and the length of the kmer centering the position. 
+This should generate the desired plot in the output folder.
+![plot](./output/FH028_FH017_Cys-GCA-1_11mer.svg)
+
