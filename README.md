@@ -43,14 +43,14 @@ Here, the samples are again listed as a string separated by commas (when more th
 
 This will generate a kl_symmetric_mincov100.tsv file, which contains the KL Divergence for each position of each tRNA. We provided a small example input to in the `data` folder (which results in 0 KLs when the minimum coverage is not fulfilled).
 
-## Plotting functionalities
+## Add-on plotting functionalities
 To reproduce the signal plots in the manuscript, we can do the following two steps. 
-### Signal extraction by subsampling reads from a pod5 file
+### Signal extraction by subsampling reads from pod5 files
 First, we subsample reads from the pod5 files by running
 ```
 python signal_tools.py extract --samples FH017,FH028 --ref data/reference.fasta --pod5_dir pod5/FH017.pod5,pod5/FH028.pod5  --subsample 200
 ```
-Here, we need to specify the two samples, and the location of their pod5 files. The subsample parameter is the number of subsampled reads.
+Here, we need to specify the samples (comma separated, as many as needed, but the pod5 files should be listed in the same order as the sample list), and the location of their pod5 files. The subsample parameter is the number of subsampled reads.
 This generates a pckl file in the output folder, containing the extracted signals for subsequent analysis or plotting.
 ### Plotting the signals of two samples (example Fig.5B in paper)
 We can make signal plots comparing two samples by running the following. The example given is for Fig.5B of the manuscript on bioRxiv. 
