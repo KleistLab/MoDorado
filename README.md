@@ -7,25 +7,24 @@ MoDorado is a light-weight algorithm that detects modification by off-label use 
 
 The current version of MoDorado supports analysis of tRNA modifications, with future extensions planned for mRNA and other types of RNAs.
 
-## Step 0: basecalling with Dorado
+## Preprocessing 
+### Basecalling and modification calling with Dorado models
 To run MoDorado, it is necessary to have used the latest version Dorado for basecalling and modification calling. Currently for RNA004 data, this is the `rna004_130bps_sup@v5.1.0` model for basecalling, with the four models for m6A/Ψ/m5C/inosine selected. 
 
 Additionally, for visualisation and easy processing, the options `--emit-moves --emit-sam` should be used.
 
 
-## Step 1: alignment with Parasail and read filtering
+### tRNA-specific: Alignment with Parasail and read filtering
 To run [Parasail](https://github.com/jeffdaily/parasail), we first need to convert `.sam` output from Dorado by `samtools fastq -T "*" basecalls.sam > basecalls.fastq`.  
 ```
-parasail_aligner -a sw_trace_striped_sse41_128_16 -M 2 -X 1 -c 10 -x -d  -O SAMH -t 6 -b 1000 -f data/reference.fasta -q basecalls.fastq -g basecalls_parasail_reference.sam
+parasail_aligner -a sw_trace_striped_sse41_128_16 -M 2 -X 1 -c 10 -x -d  -O SAMH -t 6 -b 1000 -f data/reference.fasta -q basecalls.fastq -g basecalls_parasail.sam
 ```
 As Parasail performs all-versus-all pairwise alignment between basecalled reads and each reference, we need to filter the alignments by finding the best hits
 ```
-python filter_parasail.py basecalls_parasail_reference.sam
+python filter_parasail.py -i basecalls_parasail.sam -o basecalls_parasail_filtered_fulllen.sam -d basecalls.sam --AS 50 --align_start 25 --align_len 80
 ```
-And filter full-length reads by
-```
-python filter_fulllen.py basecalls_parasail_reference_filtered.sam
-```
+Here, we need to specify the threshold for alignment score (AS) for filtering alignments, as well as the alignment start/length for full length reads.
+
 
 ## Step 2: parsing Dorado model predictions
 Dorado stores the modification information in `MM` and `ML` tags (for detailed description see [the SAM documentation](https://samtools.github.io/hts-specs/SAMv1.pdf)). To parse these into a data structure from each tRNA and their nucleotides for each sequencing sample (e.g. FH017, FH028, etc), we run
