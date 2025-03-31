@@ -7,33 +7,29 @@ MoDorado is a light-weight algorithm that detects modification by off-label use 
 
 The current version of MoDorado supports analysis of tRNA modifications, with future extensions planned for mRNA and other types of RNAs.
 
-## Preprocessing 
-### Basecalling and modification calling with Dorado models
-To run MoDorado, it is necessary to have used the latest version Dorado for basecalling and modification calling. Currently for RNA004 data, this is the `rna004_130bps_sup@v5.1.0` model for basecalling, with the four models for m6A/Ψ/m5C/inosine selected. 
-
-Additionally, for visualisation and easy processing, the options `--emit-moves --emit-sam` should be used.
+## 1. Preprocessing 
+### 1.1 Basecalling and modification calling with Dorado models
+First, we perform basecalling and modification calling [Dorado](https://github.com/nanoporetech/dorado). Currently, the latest basecalling model for RNA004 is `rna004_130bps_sup@v5.1.0`, with the four models for m6A/Ψ/m5C/inosine selected. Additionally, for further processing (e.g. signal visualisation), the options `--emit-moves --emit-sam` should be used.
 
 
-### tRNA-specific: Alignment with Parasail and read filtering
+### 1.2 Alignment and read filtering (currently tRNA-specific)
 To run [Parasail](https://github.com/jeffdaily/parasail), we first need to convert `.sam` output from Dorado by `samtools fastq -T "*" basecalls.sam > basecalls.fastq`.  
 ```
 parasail_aligner -a sw_trace_striped_sse41_128_16 -M 2 -X 1 -c 10 -x -d  -O SAMH -t 6 -b 1000 -f data/reference.fasta -q basecalls.fastq -g basecalls_parasail.sam
 ```
-As Parasail performs all-versus-all pairwise alignment between basecalled reads and each reference, we need to filter the alignments by finding the best hits
+As Parasail performs all-versus-all pairwise alignment between basecalled reads and each reference, the alignments need to be filtered for the best candidate hit(s). Additionally, we need to specify the threshold for alignment score (AS) for filtering alignments, and the alignment start/length for full length reads.
 ```
 python filter_parasail.py -i basecalls_parasail.sam -o basecalls_parasail_filtered_fulllen.sam -d basecalls.sam --AS 50 --align_start 25 --align_len 80
 ```
-Here, we need to specify the threshold for alignment score (AS) for filtering alignments, as well as the alignment start/length for full length reads.
 
-
-## Step 2: parsing Dorado model predictions
-Dorado stores the modification information in `MM` and `ML` tags (for detailed description see [the SAM documentation](https://samtools.github.io/hts-specs/SAMv1.pdf)). To parse these into a data structure from each tRNA and their nucleotides for each sequencing sample (e.g. FH017, FH028, etc), we run
+## 2. Parsing Dorado model predictions
+Dorado stores the modification information in `MM` and `ML` tags (for detailed description see [the SAM documentation](https://samtools.github.io/hts-specs/SAMv1.pdf)). To parse these into a data structure from each tRNA for each sequencing sample (e.g. FH017, FH028, etc), we run
 ```
-python parse_dorado.py data/reference.fasta alignment FH017,FH028
+python parse_dorado.py data/reference.fasta basecalls_parasail_filtered_fulllen.sam FH017,FH028
 ```
 Here, all sequencing samples can be written as a long string separated by a comma, i.e. `sample1,sample2,sample3,...,samplen`. 
 
-## Step 3: distribution comparison with KL Divergence 
+## 3. Distribution comparison with KL Divergence 
 With Dorado results parsed, we can now compare two samples at each position of the tRNAs using the KL Divergence. To do this, we run 
 ```
 python dist_compare.py output/trna2mods.pckl data/reference.fasta data/20241031_data_shifted_mods.xlsx FH028,FH017 100
@@ -44,13 +40,15 @@ This will generate a kl_symmetric_mincov100.tsv file, which contains the KL Dive
 
 ## Add-on plotting functionalities
 To reproduce the signal plots in the manuscript, we can do the following two steps. 
+
 ### Signal extraction by subsampling reads from pod5 files
 First, we subsample reads from the pod5 files by running
 ```
 python signal_tools.py extract --samples FH017,FH028 --ref data/reference.fasta --pod5_dir pod5/FH017.pod5,pod5/FH028.pod5  --subsample 200
 ```
 Here, we need to specify the samples (comma separated, as many as needed, but the pod5 files should be listed in the same order as the sample list), and the location of their pod5 files. The subsample parameter is the number of subsampled reads.
-This generates a pckl file in the output folder, containing the extracted signals for subsequent analysis or plotting.
+This generates a pickle object in the output folder, containing the extracted signals for subsequent analysis or plotting.
+
 ### Plotting the signals of two samples (example Fig.5B in paper)
 We can make signal plots comparing two samples by running the following. The example given is for Fig.5B of the manuscript on bioRxiv. 
 ```
