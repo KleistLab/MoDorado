@@ -1,0 +1,34 @@
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "MoDorado"
+version = "0.0.1"
+authors = [
+  { name="Wang Liu-Wei", email="liuwei.wang@fu-berlin.de" },
+]
+description = "MoDorado: modification detection with nanopore sequencing data by repurposing Dorado models"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+
+dependencies = [
+  "pod5",
+  "pysam",
+  "numpy",
+  "matplotlib",
+  "scipy",
+  "pandas"
+]
+
+[project.urls]
+Homepage = "https://github.com/KleistLab/MoDorado"
+
+
+
