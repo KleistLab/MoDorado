@@ -44,7 +44,7 @@ To reproduce the signal plots in the manuscript, we can do the following two ste
 ### Signal extraction by subsampling reads from pod5 files
 First, we subsample reads from the pod5 files by running
 ```
-python signal_tools.py extract --samples FH017,FH028 --ref data/reference.fasta --pod5_dir pod5/FH017.pod5,pod5/FH028.pod5  --subsample 200
+python signal_tools.py extract --samples FH017,FH028 -a xxx --ref data/reference.fasta --pod5_dir pod5/FH017.pod5,pod5/FH028.pod5 --subsample 200 -o xxx
 ```
 Here, we need to specify the samples (comma separated, as many as needed, but the pod5 files should be listed in the same order as the sample list), and the location of their pod5 files. The subsample parameter is the number of subsampled reads.
 This generates a pickle object in the output folder, containing the extracted signals for subsequent analysis or plotting.
