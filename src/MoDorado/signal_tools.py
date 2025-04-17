@@ -24,7 +24,10 @@ def get_signal(dim, x, signal_calibrated, signal_cpts, stride):
 def extract_signal(args):
     reference = pysam.FastaFile(args.ref)
     samples = args.samples.split(",")
-    pod5s = args.pod5_dir.split(",")
+    pod5s = []
+    for sample in samples:
+        pod5s.append(args.pod5_dir + sample + ".pod5")
+
     n_sub = int(args.subsample)
     output_file = args.output
     align_files = args.alignments.split(",")
@@ -32,10 +35,9 @@ def extract_signal(args):
     ref2sigs = {}
     for i in range(len(samples)):
         sample = samples[i]
-        pod5_file = pod5s[i]
         print(sample)
         samfile = pysam.AlignmentFile(align_files[i], "r")
-        pod5file = pod5.DatasetReader(pod5_file) 
+        pod5file = pod5.DatasetReader(pod5s[i]) 
 
         ref2sigs[sample] = {}
         for ref in reference.references:
@@ -50,12 +52,11 @@ def extract_signal(args):
                 signal_cpts = ts + move_cpts * stride
 
                 read_record, ref_seq = pod5file.get_read(x.query_name), reference.fetch(x.reference_name)
-                
+
                 if read_record != None: # no read splitting, original read_id exists
                     signal_calibrated = read_record.calibrate_signal_array(read_record.signal)
                     ref_signal = get_signal(stride * len(ref_seq), x, signal_calibrated, signal_cpts, stride)
                     
-                
                 else: # read has been split, new id applies
                     parent_id = x.get_tag("pi")
                     parent_record = pod5file.get_read(parent_id)
@@ -89,7 +90,7 @@ def plot_signal(args, stride = 6):
     trna = args.trna
     kmer_len = args.kmer
     pos_of_interest = args.pos
-    df_annotation = pd.read_excel("data/SI_table1.xlsx")
+    df_annotation = pd.read_excel(args.annotation)
 
     df_trna = df_annotation[df_annotation["tRNA"] == trna[5:-2]]
     df_trna_cleared = df_trna.dropna(subset=["nucleotide"], ignore_index=True)
@@ -100,10 +101,10 @@ def plot_signal(args, stride = 6):
         kmer_seq = kmer_seq + df_trna_cleared.iloc[row]["nucleotide"]
     print(kmer_seq)
 
+    offset = args.offset
     if args.offset is None:
         diff_median = get_signal_median(mt, trna, ref2sigs) - get_signal_median(wt, trna, ref2sigs)
         offset = np.median(diff_median)
-    offset = args.offset
     print("offset = ", offset)
     
     sns.set(rc = {'figure.figsize': (10, 6)})   
@@ -133,35 +134,39 @@ def plot_signal(args, stride = 6):
     plt.ylim(30, args.ymax)
     plt.yticks(np.arange(30, args.ymax+1, 20))
     sns.despine()
-    plt.savefig("output/" + wt + "_" + mt + "_" + trna[5:-2] + "_" + str(kmer_len) + "mer."+args.format, format=args.format, bbox_inches='tight')
+    plt.savefig(args.output, bbox_inches='tight')
 
+def main():
+    return 0
+    # parser = argparse.ArgumentParser()
+    # subparsers = parser.add_subparsers(dest="command", required=True)
+
+    # # To extract signals from a list of samples 
+    # extract_parser = subparsers.add_parser("extract", help="Extract signals from a list of samples")
+    # extract_parser.add_argument("--samples", type=str, required=True, help="A list of samples separated by comma, e.g. FH017,FH018,FH019")
+    # extract_parser.add_argument("-a", "--alignments", type=str, required=True, help="The alignment files corresponding to the samples")
+    # extract_parser.add_argument("--ref", type=str, required=True, help="The reference fasta file")
+    # extract_parser.add_argument("--pod5_dir", type=str, required=True, help="The locations of the pod5 files separated by comma, e.g. FH017.pod5,FH028.pod5")
+    # extract_parser.add_argument("--subsample", type=str, required=True, help="The (maximum) number of subsamples per tRNA (which is not necessarily reached by low coverage samples)")
+    # extract_parser.add_argument("-o", "--output", required=True, type=str, help="Output python pickle object storing signal data of subsampled tRNA reads")
+    # extract_parser.set_defaults(func=extract_signal)
+
+    # # To plot signals centering a particular position between two samples 
+    # plot_parser = subparsers.add_parser("plot", help="Plot signals centering a particular position between two samples")
+    # plot_parser.add_argument("-s1", "--sample1", type=str, required=True, help="The wildtype sample to be plotted")
+    # plot_parser.add_argument("-s2", "--sample2", type=str, required=True, help="The mutant sample to be plotted")
+    # plot_parser.add_argument("--signals", type=str, required=True, help="The signal pickle file")
+    # plot_parser.add_argument("--trna", type=str, required=True, help="The tRNA to be plotted, e.g. tRNA-Cys-GCA-1-1")
+    # plot_parser.add_argument("--pos", type=int, required=True, help="The position to be plotted")
+    # plot_parser.add_argument("--kmer", type=int, required=True, help="The kmer length to be plotted")
+    # plot_parser.add_argument("--ymax", type=int, required=False, default = 110, help="Optional max for the y-axis")
+    # plot_parser.add_argument("--offset", type=float, required=False, help="If set, offset is no longer computed from data")
+    # plot_parser.add_argument("-f", "--format", type=str, required=False, default="svg", help="The mutant sample to be plotted")
+    # plot_parser.set_defaults(func=plot_signal)
+
+    # args = parser.parse_args()
+    # args.func(args)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    subparsers = parser.add_subparsers(dest="command", required=True)
-
-    # To extract signals from a list of samples 
-    extract_parser = subparsers.add_parser("extract", help="Extract signals from a list of samples")
-    extract_parser.add_argument("--samples", type=str, required=True, help="A list of samples separated by comma, e.g. FH017,FH018,FH019")
-    extract_parser.add_argument("-a", "--alignments", type=str, required=True, help="The alignment files corresponding to the samples")
-    extract_parser.add_argument("--ref", type=str, required=True, help="The reference fasta file")
-    extract_parser.add_argument("--pod5_dir", type=str, required=True, help="The locations of the pod5 files separated by comma, e.g. FH017.pod5,FH028.pod5")
-    extract_parser.add_argument("--subsample", type=str, required=True, help="The (maximum) number of subsamples per tRNA (which is not necessarily reached by low coverage samples)")
-    extract_parser.add_argument("-o", "--output", required=True, type=str, help="Output python pickle object storing signal data of subsampled tRNA reads")
-    extract_parser.set_defaults(func=extract_signal)
-
-    # To plot signals centering a particular position between two samples 
-    plot_parser = subparsers.add_parser("plot", help="Plot signals centering a particular position between two samples")
-    plot_parser.add_argument("-s1", "--sample1", type=str, required=True, help="The wildtype sample to be plotted")
-    plot_parser.add_argument("-s2", "--sample2", type=str, required=True, help="The mutant sample to be plotted")
-    plot_parser.add_argument("--signals", type=str, required=True, help="The signal pickle file")
-    plot_parser.add_argument("--trna", type=str, required=True, help="The tRNA to be plotted, e.g. tRNA-Cys-GCA-1-1")
-    plot_parser.add_argument("--pos", type=int, required=True, help="The position to be plotted")
-    plot_parser.add_argument("--kmer", type=int, required=True, help="The kmer length to be plotted")
-    plot_parser.add_argument("--ymax", type=int, required=False, default = 110, help="Optional max for the y-axis")
-    plot_parser.add_argument("--offset", type=float, required=False, help="If set, offset is no longer computed from data")
-    plot_parser.add_argument("-f", "--format", type=str, required=False, default="svg", help="The mutant sample to be plotted")
-    plot_parser.set_defaults(func=plot_signal)
-
-    args = parser.parse_args()
-    args.func(args)
+    main()
+    
