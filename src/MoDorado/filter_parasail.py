@@ -2,7 +2,14 @@ import pysam
 import argparse
 from copy import deepcopy
 
-def filter(input_file, output_file, dorado_file, as_thres, align_start, align_len):
+def filter(args):
+    input_file = args.input
+    output_file = args.output
+    dorado_file = args.dorado
+    as_thres = args.AS
+    align_start = args.align_start
+    align_len = args.align_len
+    
     samfile = pysam.AlignmentFile(input_file, "r")
     outfile = pysam.AlignmentFile(output_file, 'w', template=samfile)
     movefile = pysam.AlignmentFile(dorado_file, "r", check_sq=False)
@@ -57,4 +64,4 @@ if __name__ == "__main__":
     parser.add_argument("--align_len", type=int, default=80, help="Minimum threshold of alignment length to filter parasail alignments")
 
     args = parser.parse_args()
-    filter(args.input, args.output, args.dorado, args.AS, args.align_start, args.align_len)
+    filter(args)
