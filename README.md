@@ -7,6 +7,14 @@ MoDorado is a light-weight algorithm that detects modification by off-label use 
 
 The current version of MoDorado supports analysis of tRNA modifications, with future extensions planned for mRNA and other types of RNAs.
 
+## Installation
+To install MoDorado, you need Python >= 3.10 and ideally a dedicated virtual environment via conda/mamba to avoid conflicts. To install, run
+```
+git clone https://github.com/KleistLab/MoDorado.git
+cd MoDorado
+pip install .
+```
+
 ## 1. Preprocessing 
 ### 1.1 Basecalling and modification calling with Dorado models
 First, we perform basecalling and modification calling [Dorado](https://github.com/nanoporetech/dorado). Currently, the latest basecalling model for RNA004 is `rna004_130bps_sup@v5.1.0`, with the four models for m6A/Ψ/m5C/inosine selected. Additionally, for further processing (e.g. signal visualisation), the options `--emit-moves --emit-sam` should be used.
