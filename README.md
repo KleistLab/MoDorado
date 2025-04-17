@@ -16,9 +16,8 @@ pip install .
 ```
 
 ## Quick start 
+Here we show a quick toy example with two small samples in the tests folder, starting from parsing dorado model predictions (Step 2). The preprocessing steps require the original dorado basecalls, which exceed github's file size limits.
 ```
-# Here we show a quick toy example with two small samples, starting from parsing dorado model predictions (Step 2).
-# The preprocessing steps require the original dorado basecalls, which exceed github's file size limits.
 mkdir tests/output
 
 # To compute KL divergence between two samples
