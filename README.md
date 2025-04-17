@@ -27,20 +27,21 @@ parasail_aligner -a sw_trace_striped_sse41_128_16 -M 2 -X 1 -c 10 -x -d  -O SAMH
 ```
 As Parasail performs all-versus-all pairwise alignment between basecalled reads and each reference, the alignments need to be filtered for the best candidate hit(s). Additionally, we need to specify the threshold for alignment score (AS) for filtering alignments, and the alignment start/length for full length reads.
 ```
-modorado filter_parasail -i RNA004/deg1/FH031_parasail.sam -d RNA004/deg1/FH031.sam -o FH031_parasail_filtered_fulllen.sam --AS 50 --align_start 25 --align_len 80
+modorado filter_parasail -i basecalls_parasail.sam -d basecalls.sam -o basecalls_parasail_filtered_fulllen.sam --AS 50 --align_start 25 --align_len 80
 ```
 
 ## 2. Parsing Dorado model predictions
 Dorado stores the modification information in `MM` and `ML` tags (for detailed description see [the SAM documentation](https://samtools.github.io/hts-specs/SAMv1.pdf)). To parse these into a data structure from each tRNA for each sequencing sample (e.g. FH017, FH028, etc), we run
 ```
-python parse_dorado.py data/reference.fasta basecalls_parasail_filtered_fulllen.sam FH017,FH028
+modorado parse_dorado -r reference.fasta -s sample1,sample2 -a sample1_parasail_filtered_fulllen.sam sample2_parasail_filtered_fulllen.sam -o trna2mods.pckl
 ```
+
 Here, all sequencing samples can be written as a long string separated by a comma, i.e. `sample1,sample2,sample3,...,samplen`. 
 
 ## 3. Distribution comparison with KL Divergence 
 With Dorado results parsed, we can now compare two samples at each position of the tRNAs using the KL Divergence. To do this, we run 
 ```
-python dist_compare.py output/trna2mods.pckl data/reference.fasta data/20241031_data_shifted_mods.xlsx FH028,FH017 100
+modorado compare -p trna2mods.pckl -r reference.fasta -a tests/data/20241031_data_shifted_mods.xlsx -s sample1,sample2 --cov 100 -o kl_symmetric_mincov100.tsv
 ```
 Here, the samples are again listed as a string separated by commas (when more than 2 samples are added, the wildtype sample is assumed to be the first in the list). The `100` at the end is a minimum coverage threshold for each tRNA.
 
