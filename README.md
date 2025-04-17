@@ -19,7 +19,7 @@ parasail_aligner -a sw_trace_striped_sse41_128_16 -M 2 -X 1 -c 10 -x -d  -O SAMH
 ```
 As Parasail performs all-versus-all pairwise alignment between basecalled reads and each reference, the alignments need to be filtered for the best candidate hit(s). Additionally, we need to specify the threshold for alignment score (AS) for filtering alignments, and the alignment start/length for full length reads.
 ```
-python filter_parasail.py -i basecalls_parasail.sam -o basecalls_parasail_filtered_fulllen.sam -d basecalls.sam --AS 50 --align_start 25 --align_len 80
+modorado filter_parasail -i RNA004/deg1/FH031_parasail.sam -d RNA004/deg1/FH031.sam -o FH031_parasail_filtered_fulllen.sam --AS 50 --align_start 25 --align_len 80
 ```
 
 ## 2. Parsing Dorado model predictions
