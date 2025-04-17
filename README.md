@@ -8,7 +8,13 @@ MoDorado is a light-weight algorithm that detects modification by off-label use 
 The current version of MoDorado supports analysis of tRNA modifications, with future extensions planned for mRNA and other types of RNAs.
 
 ## Installation
-To install MoDorado, you need Python >= 3.10 and ideally a dedicated virtual environment via conda/mamba to avoid conflicts. To install, run
+To install MoDorado, you need Python >= 3.10 and ideally a dedicated virtual environment via conda/mamba to avoid conflicts.
+```
+conda create --name modo_env python=3.10
+conda activate modo_env
+```
+
+To install, run
 ```
 git clone https://github.com/KleistLab/MoDorado.git
 cd MoDorado
