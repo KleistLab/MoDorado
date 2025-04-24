@@ -38,7 +38,7 @@ def main():
     # To extract signals from a list of samples 
     extract_parser = subparsers.add_parser("extract_signal", help="Extract signals from a list of samples")
     extract_parser.add_argument("--samples", type=str, required=True, help="A list of samples separated by comma, e.g. FH017,FH018,FH019")
-    extract_parser.add_argument("-a", "--alignments", type=str, required=True, help="The alignment files corresponding to the samples")
+    extract_parser.add_argument("-a", "--alignment", nargs='+', type=str, required=True, help="The alignment files corresponding to the samples")
     extract_parser.add_argument("--ref", type=str, required=True, help="The reference fasta file")
     extract_parser.add_argument("--pod5_dir", type=str, required=True, help="The locations of the pod5 files separated by comma, e.g. FH017.pod5,FH028.pod5")
     extract_parser.add_argument("--subsample", type=str, required=True, help="The (maximum) number of subsamples per tRNA (which is not necessarily reached by low coverage samples)")

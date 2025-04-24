@@ -30,7 +30,10 @@ def extract_signal(args):
 
     n_sub = int(args.subsample)
     output_file = args.output
-    align_files = args.alignments.split(",")
+    align_files = args.alignment
+
+    if len(align_files) != len(samples):
+        raise Exception("The number of samples do not match the number of alignment samfiles.")
 
     ref2sigs = {}
     for i in range(len(samples)):
