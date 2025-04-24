@@ -85,5 +85,5 @@ modorado plot --sample1 FH028 --sample2 FH017 --signals tests/output/signals_FH0
 ```
 Here, we need to specify the signal file from the first step, the name of the tRNA, the position to be plotted and the length of the kmer centering the position. 
 This should generate the desired plot in the output folder.
-![plot](./output/FH028_FH017_Cys-GCA-1_11mer.svg)
+![plot](tests/data/FH028_FH017_Cys-GCA-1_11mer.svg)
 
