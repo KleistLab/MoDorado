@@ -31,7 +31,7 @@ modorado parse_dorado -r tests/data/reference.fasta -s FH028,FH017 -a tests/data
 modorado compare -p tests/output/trna2mods.pckl -r tests/data/reference.fasta -a tests/data/20241031_data_shifted_mods.xlsx -s FH028,FH017 --cov 100 -o tests/output/kl_symmetric_mincov100_test.tsv
 
 # To plot signals between two samples at a certain position  
-modorado extract_signal --sample FH017,FH028 -a tests/data/FH017_parasail_reference_filtered_fulllen.sam,tests/data/FH028_parasail_reference_filtered_fulllen.sam --ref tests/data/reference.fasta --pod5_dir pod5_directories --subsample 200 -o tests/output/signals_FH017,FH028_200.pckl
+modorado extract_signal --sample FH017,FH028 -a tests/data/FH017_parasail_reference_filtered_fulllen.sam tests/data/FH028_parasail_reference_filtered_fulllen.sam --ref tests/data/reference.fasta --pod5_dir tests/data/ --subsample 200 -o tests/output/signals_FH017,FH028_200.pckl
 modorado plot --sample1 FH028 --sample2 FH017 --signals tests/output/signals_FH017,FH028_200.pckl --trna tRNA-Cys-GCA-1-1 --pos 58 --kmer 11 --annotation tests/data/SI_table1.xlsx -o tests/output/FH028_FH017_Cys-GCA-1_11mer.svg 
 ```
 
