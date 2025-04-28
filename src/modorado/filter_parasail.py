@@ -47,6 +47,9 @@ def filter(args):
                 if x.has_tag("pi"):
                     read2best[x.query_name][i].set_tag("pi", x.get_tag("pi"))
                     read2best[x.query_name][i].set_tag("sp", x.get_tag("sp"))
+
+                if x.has_tag("ns"):
+                    read2best[x.query_name][i].set_tag("ns", x.get_tag("ns"))
                 
                 if read2best[x.query_name][i].reference_start < align_start and read2best[x.query_name][i].reference_length > align_len: # Filter full length reads
                     outfile.write(read2best[x.query_name][i])
