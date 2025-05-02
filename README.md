@@ -73,7 +73,8 @@ To reproduce the signal plots in the manuscript, we can do the following two ste
 ### Signal extraction by subsampling reads from pod5 files
 First, we subsample reads from the pod5 files by running
 ```
-modorado extract_signal --sample FH017,FH028 -a tests/data/FH017_parasail_reference_filtered_fulllen.sam,tests/data/FH028_parasail_reference_filtered_fulllen.sam --ref tests/data/reference.fasta --pod5_dir ~/Desktop/nanopore/hu/gz/ --subsample 200 -o tests/output/signals_FH017,FH028_200.pckl
+modorado extract_signal --sample FH017,FH028 -a tests/data/FH017_parasail_reference_filtered_fulllen.sam tests/data/FH028_parasail_reference_filtered_fulllen.sam --ref tests/data/reference.fasta --pod5_dir tests/data/ --subsample 200 -o tests/output/signals_FH017,FH028_200.pckl
+
 ```
 Here, we need to specify the samples (comma separated, as many as needed, but the pod5 files should be listed in the same order as the sample list), and the location of their pod5 files. The subsample parameter is the number of subsampled reads.
 This generates a pickle object in the output folder, containing the extracted signals for subsequent analysis or plotting.
@@ -81,7 +82,7 @@ This generates a pickle object in the output folder, containing the extracted si
 ### Plotting the signals of two samples (example Fig.5B in paper)
 We can make signal plots comparing two samples by running the following. The example given is for Fig.5B of the manuscript on bioRxiv. 
 ```
-modorado plot --sample1 FH028 --sample2 FH017 --signals tests/output/signals_FH017,FH028_200.pckl --trna tRNA-Cys-GCA-1-1 --pos 58 --kmer 11 --annotation tests/data/SI_table1.xlsx -o tests/output/FH028_FH017_Cys-GCA-1_11mer.svg 
+modorado plot --sample1 FH028 --sample2 FH017 --signals tests/output/signals_FH017,FH028_200.pckl --trna tRNA-Cys-GCA-1-1 --pos 58 --kmer 11 --annotation tests/data/SI_table1.xlsx -o tests/output/FH028_FH017_Cys-GCA-1_11mer.svg
 ```
 Here, we need to specify the signal file from the first step, the name of the tRNA, the position to be plotted and the length of the kmer centering the position. 
 This should generate the desired plot in the output folder.
