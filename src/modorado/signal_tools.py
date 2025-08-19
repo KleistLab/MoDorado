@@ -4,7 +4,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np 
 import pod5
-import argparse
 import pickle
 
 def get_signal(dim, x, signal_calibrated, signal_cpts, stride):
@@ -23,10 +22,8 @@ def get_signal(dim, x, signal_calibrated, signal_cpts, stride):
 
 def extract_signal(args):
     reference = pysam.FastaFile(args.ref)
-    samples = args.samples.split(",")
-    pod5s = []
-    for sample in samples:
-        pod5s.append(args.pod5_dir + sample + ".pod5")
+    samples = args.samples
+    pod5s = args.pod5s
 
     n_sub = int(args.subsample)
     output_file = args.output
@@ -61,6 +58,7 @@ def extract_signal(args):
                     ref_signal = get_signal(stride * len(ref_seq), x, signal_calibrated, signal_cpts, stride)
                     
                 else: # read has been split, new id applies
+                    # print(x)
                     parent_id = x.get_tag("pi")
                     parent_record = pod5file.get_read(parent_id)
                     signal_calibrated = parent_record.calibrate_signal_array(parent_record.signal)
@@ -122,15 +120,15 @@ def plot_signal(args, stride = 6):
             signal_chunk = ref2sigs[sample][trna][i][0][(kmer_i - kmer_len//2 - 2) * stride : (kmer_i + kmer_len//2 - 1) * stride]
             if 0 not in signal_chunk:
                 if sample == wt:
-                    y = y + list(signal_chunk + offset)
+                    y = y + list( (signal_chunk + offset) * args.norm )
                 else:
                     y = y + list(signal_chunk)       
                 x = x + list(np.arange(0, length)) # signal positions to be plotted on the x-axis
                 hue = hue + [sample] * length
     sns.lineplot(x = x, y = y, hue = hue, errorbar="sd", palette = ["#008080","#FF7F50"], lw=2, alpha=0.7)
-    plt.vlines(x = np.arange(stride, length, stride), ymin = 0, ymax = 145, ls="--", color = "grey", lw=0.5)
+    plt.vlines(x = np.arange(stride, length, stride), ymin = 0, ymax = args.ymax+20, ls="--", color = "grey", lw=0.5)
     for base_i in range(len(kmer_seq)):
-            plt.text(base_i * 6 +1, 125, kmer_seq[base_i])
+            plt.text(base_i * 6 +1, args.ymax+10, kmer_seq[base_i])
 
     plt.ylabel("Signal intensity")
     plt.xticks([])

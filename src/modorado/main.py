@@ -37,10 +37,10 @@ def main():
 
     # To extract signals from a list of samples 
     extract_parser = subparsers.add_parser("extract_signal", help="Extract signals from a list of samples")
-    extract_parser.add_argument("--samples", type=str, required=True, help="A list of samples separated by comma, e.g. FH017,FH018,FH019")
+    extract_parser.add_argument("--samples", nargs='+', type=str, required=True, help="A list of samples separated by comma, e.g. FH017,FH018,FH019")
     extract_parser.add_argument("-a", "--alignment", nargs='+', type=str, required=True, help="The alignment files corresponding to the samples")
     extract_parser.add_argument("--ref", type=str, required=True, help="The reference fasta file")
-    extract_parser.add_argument("--pod5_dir", type=str, required=True, help="The locations of the pod5 files separated by comma, e.g. FH017.pod5,FH028.pod5")
+    extract_parser.add_argument("--pod5s",  nargs='+', type=str, required=True, help="The locations of the pod5 files separated by comma, e.g. FH017.pod5,FH028.pod5")
     extract_parser.add_argument("--subsample", type=str, required=True, help="The (maximum) number of subsamples per tRNA (which is not necessarily reached by low coverage samples)")
     extract_parser.add_argument("-o", "--output", required=True, type=str, help="Output python pickle object storing signal data of subsampled tRNA reads")
     extract_parser.set_defaults(func=extract_signal)
@@ -57,6 +57,7 @@ def main():
     plot_parser.add_argument("-o", "--output", type=str, required=True, help="The output plot location")
     plot_parser.add_argument("--ymax", type=int, required=False, default = 110, help="Optional max for the y-axis")
     plot_parser.add_argument("--offset", type=float, required=False, help="If set, offset is no longer computed from data")
+    plot_parser.add_argument("--norm", type=float, required=False, default = 1, help="If set, normalise the signal") # to be improved
     plot_parser.set_defaults(func=plot_signal)
 
     args = parser.parse_args()
