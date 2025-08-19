@@ -1,5 +1,5 @@
 # MoDorado (off-label modification detection by repurposing Dorado models)
-[![Zenodo](https://img.shields.io/badge/Zonodo-doi:10.5281/zenodo.14154555-green)](https://doi.org/10.5281/zenodo.15533642)
+[![DOI](https://img.shields.io/badge/DOI-10.1093%2Fnar%2Fgkaf795-blue)](https://doi.org/10.1093/nar/gkaf795)
 
 MoDorado is a light-weight algorithm that detects modification by off-label use of pre-trained modification-specific models in nanopore direct RNA sequencing (**SQK-RNA004**). The main features include the following:
 
