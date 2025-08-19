@@ -1,13 +1,11 @@
 # MoDorado (off-label modification detection by repurposing Dorado models)
 [![DOI](https://img.shields.io/badge/DOI-10.1093%2Fnar%2Fgkaf795-blue)](https://doi.org/10.1093/nar/gkaf795)
 
-MoDorado is a light-weight algorithm that detects modification by off-label use of pre-trained modification-specific models in nanopore direct RNA sequencing (**SQK-RNA004**). The main features include the following:
+MoDorado is a light-weight algorithm that detects modification by the off-label use of pre-trained modification-specific models in nanopore direct RNA sequencing (**SQK-RNA004**). 
 
-- Directly utilizing the basecalling output from Dorado
-- Supporting **A/U/C** bases (corresponding to the currently availalbe m6A/Ψ/m5C models for RNA004)
-- **Off-label** predictions for modifications beyond the existing models by comparing prediction score distributions 
+As of August 2025, the current version of the Dorado RNA model is rna004_130bps_sup@v5.2.0, supporting 8 modifications over A/U/C/G (inosine_m6A_2OmeA, pseU_2OmeU, m5C_2OmeC, 2OmeG). 
 
-The current version of MoDorado supports analysis of tRNA modifications, with future extensions planned for mRNA and other types of RNAs.
+MoDorado currently supports analysis of tRNA modifications, but the pipeline can be adapted to other types of RNAs (see details below).
 
 ## Installation
 To install MoDorado, you need Python >= 3.10 and ideally a dedicated virtual environment via conda/mamba to avoid conflicts.
@@ -22,6 +20,13 @@ git clone https://github.com/KleistLab/MoDorado.git
 cd MoDorado
 pip install .
 ```
+
+## Basecalling and modification calling with Dorado
+To run [Dorado](https://github.com/nanoporetech/dorado), we select the **sup** model and all its modification models (Dorado should automatically download the latest version). 
+```
+dorado basecaller sup,inosine_m6A_2OmeA,m5C_2OmeC,pseU_2OmeU,2OmeG pod5s/ > basecalls.bam
+```
+`pod5s` is the directory of the raw pod5 files. 
 
 ## Quick start 
 Here we show a quick toy example with two small samples in the tests folder, starting from parsing dorado model predictions (Step 2). The preprocessing steps require the original dorado basecalls, which exceed github's file size limits.
@@ -69,8 +74,8 @@ Here, the samples are again listed as a string separated by commas (when more th
 
 This will generate a kl_symmetric_mincov100.tsv file, which contains the KL Divergence for each position of each tRNA. We provided a small example input to in the `data` folder (which results in 0 KLs when the minimum coverage is not fulfilled).
 
-## Add-on plotting functionalities
-To reproduce the signal plots in the manuscript, we can do the following two steps. 
+## Miscellaneous: making signal plots
+For making signal plots, include the options `--emit-moves --emit-sam` for Dorado basecalling.
 
 ### Signal extraction by subsampling reads from pod5 files
 First, we subsample reads from the pod5 files by running
