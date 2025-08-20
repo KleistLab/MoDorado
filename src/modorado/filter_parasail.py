@@ -13,9 +13,9 @@ def filter(args):
     samfile = pysam.AlignmentFile(input_file, "r")
     outfile = pysam.AlignmentFile(output_file, 'w', template=samfile)
     if "bam" in dorado_file:
-        movefile = pysam.AlignmentFile(dorado_file, "rb", check_sq=False)
+        rawfile = pysam.AlignmentFile(dorado_file, "rb", check_sq=False)
     else:
-        movefile = pysam.AlignmentFile(dorado_file, "r", check_sq=False)
+        rawfile = pysam.AlignmentFile(dorado_file, "r", check_sq=False)
     
     iter = samfile.fetch()
     read2best = {}
@@ -37,15 +37,14 @@ def filter(args):
             read2best[x.query_name].append(deepcopy(x))
     samfile.close()
 
-    iter = movefile.fetch()
-    for x in iter:
+    for x in rawfile:
         if x.query_name in read2best:
             for i in range(len(read2best[x.query_name])):
                 read2best[x.query_name][i].set_tag("ts", x.get_tag("ts"))
 
                 if x.has_tag("mv"):
                     read2best[x.query_name][i].set_tag("mv", x.get_tag("mv"))
-                    
+
                 if x.has_tag("MM"):
                     read2best[x.query_name][i].set_tag("MM", x.get_tag("MM"))
                     read2best[x.query_name][i].set_tag("ML", x.get_tag("ML"))
@@ -60,7 +59,7 @@ def filter(args):
                 if read2best[x.query_name][i].reference_start < align_start and read2best[x.query_name][i].reference_length > align_len: # Filter full length reads
                     outfile.write(read2best[x.query_name][i])
 
-    movefile.close()
+    rawfile.close()
     outfile.close()
 
 if __name__ == "__main__":
