@@ -28,6 +28,25 @@ dorado basecaller sup,inosine_m6A_2OmeA,m5C_2OmeC,pseU_2OmeU,2OmeG pod5s/ > base
 ```
 `pod5s` is the directory of the raw pod5 files. 
 
+## tRNA-specific analysis
+Here, we focus on tRNA-specific analysis. For other types of RNAs, please refer to the section "Other RNA analysis". 
+
+### tRNA Alignment 
+Popular aligners usually expect a fastq file as input, so we first need to convert `.sam` output from Dorado with samtools using 
+```
+samtools fastq -T "*" basecalls.sam > basecalls.fastq
+```
+For tRNA alignment, we recommend [Parasail](https://github.com/jeffdaily/parasail), based on evaluation performed in [Sun et al 2023](https://doi.org/10.1093/nar/gkad826). 
+```
+parasail_aligner -a sw_trace_striped_sse41_128_16 -M 2 -X 1 -c 10 -x -d  -O SAMH -t 6 -b 1000 -f data/reference.fasta -q basecalls.fastq -g basecalls_parasail.sam
+```
+
+### tRNA read filtering (Parasail specific)
+As Parasail performs all-versus-all pairwise alignment between every read and every reference, the alignments need to be filtered for the best candidate hit(s). Additionally, we need to specify the threshold for alignment score (AS) for filtering alignments, and the alignment start/length to obtain full length reads (in our dataset, there is a 23-nt adapter at the 5', thus `align_start` is set at 25).
+```
+modorado filter_parasail -i basecalls_parasail.sam -d basecalls.sam -o basecalls_parasail_filtered_fulllen.sam --AS 50 --align_start 25 --align_len 80
+```
+
 ## Quick start 
 Here we show a quick toy example with two small samples in the tests folder, starting from parsing dorado model predictions (Step 2). The preprocessing steps require the original dorado basecalls, which exceed github's file size limits.
 ```
@@ -47,15 +66,7 @@ modorado plot --sample1 FH028 --sample2 FH017 --signals tests/output/signals_FH0
 First, we perform basecalling and modification calling [Dorado](https://github.com/nanoporetech/dorado). Currently, the latest basecalling model for RNA004 is `rna004_130bps_sup@v5.1.0`, with the four models for m6A/Ψ/m5C/inosine selected. Additionally, for further processing (e.g. signal visualisation), the options `--emit-moves --emit-sam` should be used.
 
 
-### 1.2 Alignment and read filtering (currently tRNA-specific)
-To run [Parasail](https://github.com/jeffdaily/parasail), we first need to convert `.sam` output from Dorado by `samtools fastq -T "*" basecalls.sam > basecalls.fastq`.  
-```
-parasail_aligner -a sw_trace_striped_sse41_128_16 -M 2 -X 1 -c 10 -x -d  -O SAMH -t 6 -b 1000 -f data/reference.fasta -q basecalls.fastq -g basecalls_parasail.sam
-```
-As Parasail performs all-versus-all pairwise alignment between basecalled reads and each reference, the alignments need to be filtered for the best candidate hit(s). Additionally, we need to specify the threshold for alignment score (AS) for filtering alignments, and the alignment start/length for full length reads.
-```
-modorado filter_parasail -i basecalls_parasail.sam -d basecalls.sam -o basecalls_parasail_filtered_fulllen.sam --AS 50 --align_start 25 --align_len 80
-```
+
 
 ## 2. Parsing Dorado model predictions
 Dorado stores the modification information in `MM` and `ML` tags (for detailed description see [the SAM documentation](https://samtools.github.io/hts-specs/SAMv1.pdf)). To parse these into a data structure from each tRNA for each sequencing sample (e.g. FH017, FH028, etc), we run
