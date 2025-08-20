@@ -12,7 +12,10 @@ def filter(args):
     
     samfile = pysam.AlignmentFile(input_file, "r")
     outfile = pysam.AlignmentFile(output_file, 'w', template=samfile)
-    movefile = pysam.AlignmentFile(dorado_file, "r", check_sq=False)
+    if "bam" in dorado_file:
+        movefile = pysam.AlignmentFile(dorado_file, "rb", check_sq=False)
+    else:
+        movefile = pysam.AlignmentFile(dorado_file, "r", check_sq=False)
     
     iter = samfile.fetch()
     read2best = {}
@@ -39,7 +42,10 @@ def filter(args):
         if x.query_name in read2best:
             for i in range(len(read2best[x.query_name])):
                 read2best[x.query_name][i].set_tag("ts", x.get_tag("ts"))
-                read2best[x.query_name][i].set_tag("mv", x.get_tag("mv"))
+
+                if x.has_tag("mv"):
+                    read2best[x.query_name][i].set_tag("mv", x.get_tag("mv"))
+                    
                 if x.has_tag("MM"):
                     read2best[x.query_name][i].set_tag("MM", x.get_tag("MM"))
                     read2best[x.query_name][i].set_tag("ML", x.get_tag("ML"))
