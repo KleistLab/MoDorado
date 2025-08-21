@@ -54,25 +54,17 @@ modorado parse_dorado -r -r tests/data/reference.fasta -a basecalls_parasail_fil
 ```
 The alignment file can be either in sam or bam format.
 
-## Quick start 
-Here we show a quick toy example with two small samples in the tests folder, starting from parsing dorado model predictions (Step 2). The preprocessing steps require the original dorado basecalls, which exceed github's file size limits.
+## Other RNA analysis
+
+### Alignment with minimap2 or other aligners
+The current pipeline should work with all popular aligners for RNA reads. They usually require the reads to be in fastq format, so it would be necessary to convert the basecalled sam/bam file by 
 ```
-mkdir tests/output
-
-# To compute KL divergence between two samples
-modorado parse_dorado -r tests/data/reference.fasta -s FH028,FH017 -a tests/data/FH028_parasail_reference_filtered_fulllen.sam tests/data/FH017_parasail_reference_filtered_fulllen.sam -o tests/output/trna2mods.pckl
-modorado compare -p tests/output/trna2mods.pckl -r tests/data/reference.fasta -a tests/data/20241031_data_shifted_mods.xlsx -s FH028,FH017 --cov 100 -o tests/output/kl_symmetric_mincov100_test.tsv
-
-# To plot signals between two samples at a certain position  
-modorado extract_signal --sample FH017,FH028 -a tests/data/FH017_parasail_reference_filtered_fulllen.sam tests/data/FH028_parasail_reference_filtered_fulllen.sam --ref tests/data/reference.fasta --pod5_dir tests/data/ --subsample 200 -o tests/output/signals_FH017,FH028_200.pckl
-modorado plot --sample1 FH028 --sample2 FH017 --signals tests/output/signals_FH017,FH028_200.pckl --trna tRNA-Cys-GCA-1-1 --pos 58 --kmer 11 --annotation tests/data/SI_table1.xlsx -o tests/output/FH028_FH017_Cys-GCA-1_11mer.svg 
+samtools fastq -T "*" basecalls.sam > basecalls.fastq
 ```
-
-## 1. Preprocessing 
-### 1.1 Basecalling and modification calling with Dorado models
-First, we perform basecalling and modification calling [Dorado](https://github.com/nanoporetech/dorado). Currently, the latest basecalling model for RNA004 is `rna004_130bps_sup@v5.1.0`, with the four models for m6A/Ψ/m5C/inosine selected. Additionally, for further processing (e.g. signal visualisation), the options `--emit-moves --emit-sam` should be used.
-
-
+The `-T "*"` option makes sure that all the optional fields in sam/bam are copied over to the fastq, which can then be aligned. For example, it has been tested with minimap2 with the following generic parameters (the `-y` option below copies the optional fields again from fastq to the output sam).
+```
+minimap2 -y -x map-ont -a --secondary=no reference.fasta basecalls.fastq > basecalls_minimap.sam 
+```
 
 
 ## 2. Parsing Dorado model predictions
@@ -113,3 +105,18 @@ Here, we need to specify the signal file from the first step, the name of the tR
 This should generate the desired plot in the output folder.
 ![plot](tests/data/FH028_FH017_Cys-GCA-1_11mer.svg)
 
+<!--
+## Quick start 
+Here we show a quick toy example with two small samples in the tests folder, starting from parsing dorado model predictions (Step 2). The preprocessing steps require the original dorado basecalls, which exceed github's file size limits.
+```
+mkdir tests/output
+
+# To compute KL divergence between two samples
+modorado parse_dorado -r tests/data/reference.fasta -s FH028,FH017 -a tests/data/FH028_parasail_reference_filtered_fulllen.sam tests/data/FH017_parasail_reference_filtered_fulllen.sam -o tests/output/trna2mods.pckl
+modorado compare -p tests/output/trna2mods.pckl -r tests/data/reference.fasta -a tests/data/20241031_data_shifted_mods.xlsx -s FH028,FH017 --cov 100 -o tests/output/kl_symmetric_mincov100_test.tsv
+
+# To plot signals between two samples at a certain position  
+modorado extract_signal --sample FH017,FH028 -a tests/data/FH017_parasail_reference_filtered_fulllen.sam tests/data/FH028_parasail_reference_filtered_fulllen.sam --ref tests/data/reference.fasta --pod5_dir tests/data/ --subsample 200 -o tests/output/signals_FH017,FH028_200.pckl
+modorado plot --sample1 FH028 --sample2 FH017 --signals tests/output/signals_FH017,FH028_200.pckl --trna tRNA-Cys-GCA-1-1 --pos 58 --kmer 11 --annotation tests/data/SI_table1.xlsx -o tests/output/FH028_FH017_Cys-GCA-1_11mer.svg 
+```
+--->
