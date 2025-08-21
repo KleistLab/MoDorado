@@ -21,9 +21,9 @@ def main():
 
     dorado_parser = subparsers.add_parser("parse_dorado", help="Parse dorado MM and ML fields")
     dorado_parser.add_argument("-r", "--reference", required=True, type=str, help="The reference fasta file")
-    dorado_parser.add_argument("-o", "--output", required=True, type=str, help="Output pickle object")
-    dorado_parser.add_argument("-a", "--alignment", nargs='+', required=True, type=str, help="The input filtered alignment samfiles")
-    dorado_parser.add_argument("-s", "--samples", required=True, type=str, help="The list of samples separated by comma, e.g. FH017,FH028,...")
+    dorado_parser.add_argument("-o", "--output", required=True, type=str, help="Output tsv with dorado prediction scores")
+    dorado_parser.add_argument("-a", "--alignment", required=True, type=str, help="The input filtered alignment samfiles")
+    # dorado_parser.add_argument("-a", "--alignment", nargs='+', required=True, type=str, help="The input filtered alignment samfiles")
     dorado_parser.set_defaults(func=parse_dorado)
 
     compare_parser = subparsers.add_parser("compare", help="Compute KL divergence between two samples")
