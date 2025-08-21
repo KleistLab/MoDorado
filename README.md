@@ -38,7 +38,7 @@ samtools fastq -T "*" basecalls.sam > basecalls.fastq
 ```
 For tRNA alignment, we recommend [Parasail](https://github.com/jeffdaily/parasail), based on evaluation performed in [Sun et al 2023](https://doi.org/10.1093/nar/gkad826). 
 ```
-parasail_aligner -a sw_trace_striped_sse41_128_16 -M 2 -X 1 -c 10 -x -d  -O SAMH -t 6 -b 1000 -f data/reference.fasta -q basecalls.fastq -g basecalls_parasail.sam
+parasail_aligner -a sw_trace_striped_sse41_128_16 -M 2 -X 1 -c 10 -x -d  -O SAMH -t 6 -b 1000 -f tests/data/reference.fasta -q basecalls.fastq -g basecalls_parasail.sam
 ```
 
 ### tRNA read filtering (Parasail specific)
@@ -46,6 +46,13 @@ As Parasail performs all-versus-all pairwise alignment between every read and ev
 ```
 modorado filter_parasail -i basecalls_parasail.sam -d basecalls.sam -o basecalls_parasail_filtered_fulllen.sam --AS 50 --align_start 25 --align_len 80
 ```
+
+### tRNA parsing Dorado modification predictions 
+This step is the same for tRNA or other types of RNA. If an alignment file with secondary/supplementary alignments is provided, only the primary alignment will be considered. The output is a tsv file with with all the dorado prediction scores aligned to a particular reference position, by each modification type.
+```
+modorado parse_dorado -r -r tests/data/reference.fasta -a basecalls_parasail_filtered_fulllen.sam -o dorado_preds.tsv
+```
+The alignment file can be either in sam or bam format.
 
 ## Quick start 
 Here we show a quick toy example with two small samples in the tests folder, starting from parsing dorado model predictions (Step 2). The preprocessing steps require the original dorado basecalls, which exceed github's file size limits.
