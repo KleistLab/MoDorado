@@ -10,7 +10,8 @@ class ReferenceFile:
         for ref in self.base2pos:
             ref_seq = self.reference.fetch(ref)
             for pos, char in enumerate(ref_seq):
-                self.base2pos[ref][char.upper()].append(pos)
+                if char.upper() in self.base2pos[ref]: # skips special chars such as N
+                    self.base2pos[ref][char.upper()].append(pos)
         
     def getReferences(self):
         return self.reference.references
