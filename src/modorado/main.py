@@ -27,12 +27,12 @@ def main():
     dorado_parser.set_defaults(func=parse_dorado)
 
     compare_parser = subparsers.add_parser("compare", help="Compute KL divergence between two samples")
-    compare_parser.add_argument("-p", "--pickle", required=True, type=str, help="The input pickle object")
     compare_parser.add_argument("-o", "--output", required=True, type=str, help="The output table of KL divergence over all positions between the two samples")
-    compare_parser.add_argument("-r", "--reference", required=True, type=str, help="The input reference fasta file")
-    compare_parser.add_argument("-a", "--annotation", required=True, type=str, help="The input annotation file")
-    compare_parser.add_argument("-s", "--samples", required=True, type=str, help="The list of samples, when more than 2 samples are added, the wildtype sample is assumed to be the first in the list")
-    compare_parser.add_argument("--cov", required=False, default = 200, type=int, help="The minimum coverage threshold for computing KL")
+    compare_parser.add_argument("--sample1", required=True, type=str, help="Name of sample1")
+    compare_parser.add_argument("--sample2", required=True, type=str, help="Name of sample2")
+    compare_parser.add_argument("--file1", required=True, type=str, help="File location of sample1")
+    compare_parser.add_argument("--file2", required=True, type=str, help="File location of sample1")
+    compare_parser.add_argument("--mincov", required=False, default = 200, type=int, help="The minimum coverage threshold for computing KL")
     compare_parser.set_defaults(func=KL)                    
 
     # To extract signals from a list of samples 

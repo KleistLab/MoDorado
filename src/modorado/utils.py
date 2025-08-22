@@ -1,4 +1,5 @@
 import pysam
+from dataclasses import dataclass, field
 
 class ReferenceFile:
     def __init__(self, filename: str):
@@ -69,3 +70,26 @@ class AlignedBasecalledFile:
                             if ref_pos not in self.ref2mod[x.reference_name][mod]:
                                 self.ref2mod[x.reference_name][mod][ref_pos] = []
                             self.ref2mod[x.reference_name][mod][ref_pos].append(ML_dict[mod][i])
+
+
+
+@dataclass
+class Mod:
+    name: str
+    scores: list[int] = field(default_factory=list)
+
+@dataclass
+class Position:
+    name: str
+    mods: dict[str, Mod] = field(default_factory=dict)
+
+@dataclass
+class Reference:
+    name: str
+    positions: dict[str, Position] = field(default_factory=dict)  
+
+@dataclass
+class Sample:
+    name: str
+    file: str
+    references: dict[str, Reference] = field(default_factory=dict)  
