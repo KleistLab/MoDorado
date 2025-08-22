@@ -52,7 +52,8 @@ modorado parse_dorado -r tests/data/reference.fasta -a basecalls_parasail_filter
 The alignment file can be either in sam or bam format.
 ### tRNA compare samples with KL divergence 
 Now we can compute the KL divergence by comparing two samples, at each reference position above a certain number of read coverage.
-```usage: modorado compare [-h] -o OUTPUT --sample1 SAMPLE1 --sample2 SAMPLE2 --file1 FILE1 --file2 FILE2 [--mincov MINCOV]
+```
+usage: modorado compare [-h] -o OUTPUT --sample1 SAMPLE1 --sample2 SAMPLE2 --file1 FILE1 --file2 FILE2 [--mincov MINCOV]
 
 options:
   -h, --help            show this help message and exit
