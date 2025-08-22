@@ -51,7 +51,21 @@ modorado parse_dorado -r tests/data/reference.fasta -a basecalls_parasail_filter
 ```
 The alignment file can be either in sam or bam format.
 ### tRNA compare samples with KL divergence 
-To be updated...
+Now we can compute the KL divergence by comparing two samples, at each reference position above a certain number of read coverage.
+```usage: modorado compare [-h] -o OUTPUT --sample1 SAMPLE1 --sample2 SAMPLE2 --file1 FILE1 --file2 FILE2 [--mincov MINCOV]
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        The output table of KL divergence over all positions between the two samples
+  --sample1 SAMPLE1     Name of sample1
+  --sample2 SAMPLE2     Name of sample2
+  --file1 FILE1         File location of sample1
+  --file2 FILE2         File location of sample1
+  --mincov MINCOV       The minimum coverage threshold for computing KL
+```
+### tRNA prediction result visualisation (with multiple sequence alignment)
+In progress...
 
 ## General RNA analysis
 The following has been tested on mRNA or viral transcriptomes.
@@ -70,7 +84,8 @@ This step is exactly the same as the one for tRNA above.
 modorado parse_dorado -r reference.fasta -a basecalls_minimap.sam -o dorado_preds.tsv
 ```
 ### General RNA -  compare samples with KL divergence 
-To be updated...
+This step is the same as above for tRNAs.
+
 <!--
 ## 3. Distribution comparison with KL Divergence 
 With Dorado results parsed, we can now compare two samples at each position of the tRNAs using the KL Divergence. To do this, we run 
