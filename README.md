@@ -66,7 +66,28 @@ options:
   --mincov MINCOV       The minimum coverage threshold for computing KL
 ```
 ### tRNA prediction result visualisation (with multiple sequence alignment)
-In progress...
+To generate a heatmap visualisation of tRNAs, it is necessary to have a Multiple Sequence Alignment (MSA) of tRNAs. For example, see `tests/datareference.aln.fa`. Except for the 5' and 3' ends, the MSA reference has to match the reference sequences exactly. The `clip_5/3` parameters provide a way to exclude the adapters so that the sequences match in length. 
+```
+usage: modorado plot_trna [-h] -o OUTPUT --clip_5 CLIP_5 --clip_3 CLIP_3 -r REFERENCE --msa MSA --kl KL --mod {m6A,inosine,m5C,pseU,Am,Cm,Gm,Um}
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        The heatmap visualisation of KL divergence over all tRNAs
+  --clip_5 CLIP_5       The number of nt to be clipped at the 5' of each tRNA, so that the lengths match the multiple sequence alignment
+  --clip_3 CLIP_3       The number of nt to be clipped at the 3' of each tRNA, so that the lengths match the multiple sequence alignment
+  -r REFERENCE, --reference REFERENCE
+                        The reference fasta file
+  --msa MSA             The multiple sequence alignment file
+  --kl KL               The KL divergence output table
+  --mod {m6A,inosine,m5C,pseU,Am,Cm,Gm,Um}
+                        The modification type in Dorado, must be one of the following: m6A, inosine, m5C, pseU, Am, Cm, Gm, Um
+```
+As an example, the following example command would produce the figure below.
+```
+modorado plot_trna -r tests/data/reference.fasta --msa tests/data/reference.aln.fa --kl tests/data/kl_elp6028_mincov100.tsv --mod pseU --clip_5 23 --clip_3 20 -o kl_elp6wt.png
+```
+![plot](tests/data/kl_elp6wt.png)
 
 ## General RNA analysis
 The following has been tested on mRNA or viral transcriptomes.
