@@ -3,6 +3,7 @@ from .signal_tools import extract_signal, plot_signal
 from .filter_parasail import filter
 from .parse_dorado import parse_dorado
 from .dist_compare import KL
+from .plot_trna import plot_trna
 
 
 def main():
@@ -33,7 +34,17 @@ def main():
     compare_parser.add_argument("--file1", required=True, type=str, help="File location of sample1")
     compare_parser.add_argument("--file2", required=True, type=str, help="File location of sample1")
     compare_parser.add_argument("--mincov", required=False, default = 200, type=int, help="The minimum coverage threshold for computing KL")
-    compare_parser.set_defaults(func=KL)                    
+    compare_parser.set_defaults(func=KL)           
+
+    plot_trna_parser = subparsers.add_parser("plot_trna", help="Plot KL divergence values of tRNAs in a heatmap")
+    plot_trna_parser.add_argument("-o", "--output", required=True, type=str, help="The heatmap visualisation of KL divergence over all tRNAs")
+    plot_trna_parser.add_argument("--clip_5", required=True, type=int, help="The number of nt to be clipped at the 5' of each tRNA, so that the lengths match the multiple sequence alignment")
+    plot_trna_parser.add_argument("--clip_3", required=True, type=int, help="The number of nt to be clipped at the 3' of each tRNA, so that the lengths match the multiple sequence alignment")
+    plot_trna_parser.add_argument("-r", "--reference", required=True, type=str, help="The reference fasta file")
+    plot_trna_parser.add_argument("--msa", required=True, type=str, help="The multiple sequence alignment file")
+    plot_trna_parser.add_argument("--kl", required=True, type=str, help="The KL divergence output table")
+    plot_trna_parser.add_argument("--mod", required=True, choices = ["m6A", "inosine", "m5C", "pseU", "Am", "Cm", "Gm", "Um"], help="The modification type in Dorado, must be one of the following: m6A, inosine, m5C, pseU, Am, Cm, Gm, Um")
+    plot_trna_parser.set_defaults(func=plot_trna)               
 
     # To extract signals from a list of samples 
     extract_parser = subparsers.add_parser("extract_signal", help="Extract signals from a list of samples")
