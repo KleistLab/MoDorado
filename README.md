@@ -83,7 +83,7 @@ options:
   --mod {m6A,inosine,m5C,pseU,Am,Cm,Gm,Um}
                         The modification type in Dorado, must be one of the following: m6A, inosine, m5C, pseU, Am, Cm, Gm, Um
 ```
-As an example, the following example command would produce the figure below.
+As an example, the following command would produce the figure below (Figure 4D in the [paper](https://academic.oup.com/nar/article/53/15/gkaf795/8237893)).
 ```
 modorado plot_trna -r tests/data/reference.fasta --msa tests/data/reference.aln.fa --kl tests/data/kl_elp6028_mincov100.tsv --mod pseU --clip_5 23 --clip_3 20 -o kl_elp6wt.png
 ```
