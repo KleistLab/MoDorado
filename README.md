@@ -85,7 +85,7 @@ options:
 ```
 As an example, the following command would produce the figure below (Figure 4D in the [paper](https://academic.oup.com/nar/article/53/15/gkaf795/8237893)).
 ```
-modorado plot_trna -r tests/data/reference.fasta --msa tests/data/reference.aln.fa --kl tests/data/kl_elp6028_mincov100.tsv --mod pseU --clip_5 23 --clip_3 20 -o kl_elp6wt.png
+modorado plot_trna -r tests/data/reference.fasta --msa tests/data/reference.aln.fa --kl tests/data/kl_elp6028_mincov100.tsv --mod pseU --clip_5 23 --clip_3 20 -o kl_elp6wt_pseU.png
 ```
 ![plot](tests/data/kl_elp6wt.png)
 
