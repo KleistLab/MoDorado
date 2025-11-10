@@ -34,6 +34,7 @@ def main():
     compare_parser.add_argument("--file1", required=True, type=str, help="File location of sample1")
     compare_parser.add_argument("--file2", required=True, type=str, help="File location of sample1")
     compare_parser.add_argument("--mincov", required=False, default = 200, type=int, help="The minimum coverage threshold for computing KL")
+    # compare_parser.add_argument("--maxcov", required=False, default = 1000, type=int, help="The minimum coverage threshold for computing KL")
     compare_parser.set_defaults(func=KL)           
 
     plot_trna_parser = subparsers.add_parser("plot_trna", help="Plot KL divergence values of tRNAs in a heatmap")
@@ -46,15 +47,6 @@ def main():
     plot_trna_parser.add_argument("--mod", required=True, choices = ["m6A", "inosine", "m5C", "pseU", "Am", "Cm", "Gm", "Um"], help="The modification type in Dorado, must be one of the following: m6A, inosine, m5C, pseU, Am, Cm, Gm, Um")
     plot_trna_parser.set_defaults(func=plot_trna)               
 
-    # # To extract signals from a list of samples 
-    # extract_parser = subparsers.add_parser("extract_signal", help="Extract signals from a list of samples")
-    # extract_parser.add_argument("--samples", nargs='+', type=str, required=True, help="A list of samples separated by comma, e.g. FH017,FH018,FH019")
-    # extract_parser.add_argument("-a", "--alignment", nargs='+', type=str, required=True, help="The alignment files corresponding to the samples")
-    # extract_parser.add_argument("--ref", type=str, required=True, help="The reference fasta file")
-    # extract_parser.add_argument("--pod5s",  nargs='+', type=str, required=True, help="The locations of the pod5 files separated by comma, e.g. FH017.pod5,FH028.pod5")
-    # extract_parser.add_argument("--subsample", type=str, required=True, help="The (maximum) number of subsamples per tRNA (which is not necessarily reached by low coverage samples)")
-    # extract_parser.add_argument("-o", "--output", required=True, type=str, help="Output python pickle object storing signal data of subsampled tRNA reads")
-    # extract_parser.set_defaults(func=extract_signal)
 
     # To extract signals from a single sample
     extract_parser = subparsers.add_parser("extract_signal", help="Extract signals from a list of samples")
@@ -65,14 +57,13 @@ def main():
     extract_parser.add_argument("-o", "--output", required=True, type=str, help="Output python pickle object storing signal data of subsampled tRNA reads")
     extract_parser.set_defaults(func=extract_signal_single)
 
-    # To plot signals centering a particular position between two samples 
-    plot_parser = subparsers.add_parser("plot", help="Plot signals centering a particular position between two samples")
-    plot_parser.add_argument("-s1", "--sample1", type=str, required=True, help="The wildtype sample to be plotted")
-    plot_parser.add_argument("-s2", "--sample2", type=str, required=True, help="The mutant sample to be plotted")
-    plot_parser.add_argument("--signals", type=str, required=True, help="The signal pickle file")
+    # To plot signals centering a particular position between a number of samples (n > 1)
+    plot_parser = subparsers.add_parser("plot", help="Plot signals centering a particular position between a number of samples")
+    plot_parser.add_argument("--samples", nargs='+', type=str, required=True, help="The list of samples to be plotted, the first one should be the wildtype/the reference strain")
+    plot_parser.add_argument("--signals", nargs='+', type=str, required=True, help="The list of signal pickle files in the same order as the samples")
     plot_parser.add_argument("--trna", type=str, required=True, help="The tRNA to be plotted, e.g. tRNA-Cys-GCA-1-1")
-    plot_parser.add_argument("--pos", type=int, required=True, help="The position to be plotted")
-    plot_parser.add_argument("--kmer", type=int, required=True, help="The kmer length to be plotted")
+    plot_parser.add_argument("--pos", type=int, required=True, help="The position to be plotted, e.g. 55")
+    plot_parser.add_argument("--kmer", type=int, required=True, help="The kmer length to be plotted, e.g. 9")
     plot_parser.add_argument("--annotation", type=str, required=True, help="The annotation file with nucleotide and their positions")
     plot_parser.add_argument("-o", "--output", type=str, required=True, help="The output plot location")
     plot_parser.add_argument("--ymax", type=int, required=False, default = 110, help="Optional max for the y-axis")
@@ -85,3 +76,29 @@ def main():
     
 if __name__ == "__main__":
     main()
+
+
+    # # To extract signals from a list of samples 
+    # extract_parser = subparsers.add_parser("extract_signal", help="Extract signals from a list of samples")
+    # extract_parser.add_argument("--samples", nargs='+', type=str, required=True, help="A list of samples separated by comma, e.g. FH017,FH018,FH019")
+    # extract_parser.add_argument("-a", "--alignment", nargs='+', type=str, required=True, help="The alignment files corresponding to the samples")
+    # extract_parser.add_argument("--ref", type=str, required=True, help="The reference fasta file")
+    # extract_parser.add_argument("--pod5s",  nargs='+', type=str, required=True, help="The locations of the pod5 files separated by comma, e.g. FH017.pod5,FH028.pod5")
+    # extract_parser.add_argument("--subsample", type=str, required=True, help="The (maximum) number of subsamples per tRNA (which is not necessarily reached by low coverage samples)")
+    # extract_parser.add_argument("-o", "--output", required=True, type=str, help="Output python pickle object storing signal data of subsampled tRNA reads")
+    # extract_parser.set_defaults(func=extract_signal)
+    
+    # # To plot signals centering a particular position between two samples 
+    # plot_parser = subparsers.add_parser("plot", help="Plot signals centering a particular position between two samples")
+    # plot_parser.add_argument("-s1", "--sample1", type=str, required=True, help="The wildtype sample to be plotted")
+    # plot_parser.add_argument("-s2", "--sample2", type=str, required=True, help="The mutant sample to be plotted")
+    # plot_parser.add_argument("--signals", type=str, required=True, help="The signal pickle file")
+    # plot_parser.add_argument("--trna", type=str, required=True, help="The tRNA to be plotted, e.g. tRNA-Cys-GCA-1-1")
+    # plot_parser.add_argument("--pos", type=int, required=True, help="The position to be plotted")
+    # plot_parser.add_argument("--kmer", type=int, required=True, help="The kmer length to be plotted")
+    # plot_parser.add_argument("--annotation", type=str, required=True, help="The annotation file with nucleotide and their positions")
+    # plot_parser.add_argument("-o", "--output", type=str, required=True, help="The output plot location")
+    # plot_parser.add_argument("--ymax", type=int, required=False, default = 110, help="Optional max for the y-axis")
+    # plot_parser.add_argument("--offset", type=float, required=False, help="If set, offset is no longer computed from data")
+    # plot_parser.add_argument("--norm", type=float, required=False, default = 1, help="If set, normalise the signal") # to be improved
+    # plot_parser.set_defaults(func=plot_signal)

@@ -62,59 +62,6 @@ def extract_signal_single(args):
     with open(output_file, 'wb') as handle:
         pickle.dump(ref2sigs, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-# def extract_signal(args):
-#     reference = pysam.FastaFile(args.ref)
-#     samples = args.samples
-#     pod5s = args.pod5s
-
-#     n_sub = int(args.subsample)
-#     output_file = args.output
-#     align_files = args.alignment
-
-#     if len(align_files) != len(samples):
-#         raise Exception("The number of samples do not match the number of alignment samfiles.")
-
-#     ref2sigs = {}
-#     for i in range(len(samples)):
-#         sample = samples[i]
-#         print(sample)
-#         samfile = pysam.AlignmentFile(align_files[i], "r")
-#         pod5file = pod5.DatasetReader(pod5s[i]) 
-
-#         ref2sigs[sample] = {}
-#         for ref in reference.references:
-#             ref2sigs[sample][ref] = []
-
-#         counter, iter = 0, samfile.fetch()
-#         for x in iter:
-#             if x.reference_name[0] != "S" and len(ref2sigs[sample][x.reference_name]) < n_sub: 
-#                 counter += 1
-#                 stride, move, ts = x.get_tag("mv")[0], np.array(x.get_tag("mv")[1:]), x.get_tag('ts')
-#                 move_cpts = np.where(move == 1)[0]
-#                 signal_cpts = ts + move_cpts * stride
-
-#                 read_record, ref_seq = pod5file.get_read(x.query_name), reference.fetch(x.reference_name)
-
-#                 if read_record != None: # no read splitting, original read_id exists
-#                     signal_calibrated = read_record.calibrate_signal_array(read_record.signal)
-#                     ref_signal = get_signal(stride * len(ref_seq), x, signal_calibrated, signal_cpts, stride)
-                    
-#                 else: # read has been split, new id applies
-#                     # print(x)
-#                     parent_id = x.get_tag("pi")
-#                     parent_record = pod5file.get_read(parent_id)
-#                     signal_calibrated = parent_record.calibrate_signal_array(parent_record.signal)
-#                     signal_cpts = signal_cpts + x.get_tag("sp")
-#                     ref_signal = get_signal(stride * len(ref_seq), x, signal_calibrated, signal_cpts, stride)
-                
-#                 matches = set(list(zip(*x.get_aligned_pairs(matches_only=True)))[1]) # returns the matched positions on the reference
-#                 ref2sigs[sample][x.reference_name].append((ref_signal, matches))
-
-#         samfile.close()
-
-#     with open(output_file, 'wb') as handle:
-#         pickle.dump(ref2sigs, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
 def get_signal_median(sample, trna, ref2sigs):
     signal_list = np.zeros((len(ref2sigs[sample][trna]), len(ref2sigs[sample][trna][0][0])))
     for i in range(len(ref2sigs[sample][trna])):
@@ -126,10 +73,16 @@ def get_signal_median(sample, trna, ref2sigs):
     return signal_median
 
 def plot_signal(args, stride = 6):
-    wt, mt = args.sample1, args.sample2
+    if len(args.samples) != len(args.signals):
+        raise Exception("The number of samples do not match the number of pickle files.")
+
+    wt, mt = args.samples[0], args.samples[1] 
     print("WT: ", wt, "MT: ", mt)
-    with open(args.signals, 'rb') as handle:
-        ref2sigs = pickle.load(handle) 
+    ref2sigs = {}
+    for sample_i in range(len(args.samples)):
+        with open(args.signals[sample_i], 'rb') as handle:
+            ref2sigs[args.samples[sample_i]] = pickle.load(handle)
+
     trna = args.trna
     kmer_len = args.kmer
     pos_of_interest = args.pos
@@ -212,4 +165,56 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
+
+# def extract_signal(args):
+#     reference = pysam.FastaFile(args.ref)
+#     samples = args.samples
+#     pod5s = args.pod5s
+
+#     n_sub = int(args.subsample)
+#     output_file = args.output
+#     align_files = args.alignment
+
+#     if len(align_files) != len(samples):
+#         raise Exception("The number of samples do not match the number of alignment samfiles.")
+
+#     ref2sigs = {}
+#     for i in range(len(samples)):
+#         sample = samples[i]
+#         print(sample)
+#         samfile = pysam.AlignmentFile(align_files[i], "r")
+#         pod5file = pod5.DatasetReader(pod5s[i]) 
+
+#         ref2sigs[sample] = {}
+#         for ref in reference.references:
+#             ref2sigs[sample][ref] = []
+
+#         counter, iter = 0, samfile.fetch()
+#         for x in iter:
+#             if x.reference_name[0] != "S" and len(ref2sigs[sample][x.reference_name]) < n_sub: 
+#                 counter += 1
+#                 stride, move, ts = x.get_tag("mv")[0], np.array(x.get_tag("mv")[1:]), x.get_tag('ts')
+#                 move_cpts = np.where(move == 1)[0]
+#                 signal_cpts = ts + move_cpts * stride
+
+#                 read_record, ref_seq = pod5file.get_read(x.query_name), reference.fetch(x.reference_name)
+
+#                 if read_record != None: # no read splitting, original read_id exists
+#                     signal_calibrated = read_record.calibrate_signal_array(read_record.signal)
+#                     ref_signal = get_signal(stride * len(ref_seq), x, signal_calibrated, signal_cpts, stride)
+                    
+#                 else: # read has been split, new id applies
+#                     # print(x)
+#                     parent_id = x.get_tag("pi")
+#                     parent_record = pod5file.get_read(parent_id)
+#                     signal_calibrated = parent_record.calibrate_signal_array(parent_record.signal)
+#                     signal_cpts = signal_cpts + x.get_tag("sp")
+#                     ref_signal = get_signal(stride * len(ref_seq), x, signal_calibrated, signal_cpts, stride)
+                
+#                 matches = set(list(zip(*x.get_aligned_pairs(matches_only=True)))[1]) # returns the matched positions on the reference
+#                 ref2sigs[sample][x.reference_name].append((ref_signal, matches))
+
+#         samfile.close()
+
+#     with open(output_file, 'wb') as handle:
+#         pickle.dump(ref2sigs, handle, protocol=pickle.HIGHEST_PROTOCOL)
