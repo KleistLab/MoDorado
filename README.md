@@ -149,9 +149,34 @@ modorado extract_signal -a tests/data/FH017_parasail_reference_filtered_fulllen.
 ### Plotting the signals of two samples (example Fig.5B in paper)
 We can make signal plots comparing two samples by running the following. The example given is for Fig.5B of the manuscript on bioRxiv. 
 ```
-modorado plot --sample1 FH028 --sample2 FH017 --signals tests/output/signals_FH017,FH028_200.pckl --trna tRNA-Cys-GCA-1-1 --pos 58 --kmer 11 --annotation tests/data/SI_table1.xlsx -o tests/output/FH028_FH017_Cys-GCA-1_11mer.svg
+usage: modorado plot [-h] --samples SAMPLES [SAMPLES ...] --signals SIGNALS [SIGNALS ...]
+                     --trna TRNA --pos POS --kmer KMER --annotation ANNOTATION -o OUTPUT
+                     [--ymax YMAX] [--offset OFFSET] [--norm NORM]
+
+options:
+  -h, --help            show this help message and exit
+  --samples SAMPLES [SAMPLES ...]
+                        The list of samples to be plotted, the first one should be the
+                        wildtype/the reference strain
+  --signals SIGNALS [SIGNALS ...]
+                        The list of signal pickle files in the same order as the samples
+  --trna TRNA           The tRNA to be plotted, e.g. tRNA-Cys-GCA-1-1
+  --pos POS             The position to be plotted, e.g. 55
+  --kmer KMER           The kmer length to be plotted, e.g. 9
+  --annotation ANNOTATION
+                        The annotation file with nucleotide and their positions
+  -o OUTPUT, --output OUTPUT
+                        The output plot location
+  --ymax YMAX           Optional max for the y-axis
+  --offset OFFSET       If set, offset is no longer computed from data
+  --norm NORM           If set, normalise the signal
 ```
 Here, we need to specify the signal file from the first step, the name of the tRNA, the position to be plotted and the length of the kmer centering the position. 
+
+The following example command reproduces Fig. 5B from the MoDorado paper.
+```
+modorado plot --samples FH028 FH017 --signals tests/output/signals_FH028_200.pckl tests/output/signals_FH017_200.pckl --trna tRNA-Cys-GCA-1-1 --pos 58 --kmer 11 --annotation tests/data/SI_table1.xlsx -o tests/output/FH028_FH017_Cys-GCA-1_11mer.svg
+```
 This should generate the desired plot in the output folder.
 ![plot](tests/data/FH028_FH017_Cys-GCA-1_11mer.svg)
 <!--
