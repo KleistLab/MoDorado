@@ -124,11 +124,28 @@ For making signal plots, include the options `--emit-moves --emit-sam` for Dorad
 ### Signal extraction by subsampling reads from pod5 files
 First, we subsample reads from the pod5 files by running
 ```
-modorado extract_signal --sample FH017,FH028 -a tests/data/FH017_parasail_reference_filtered_fulllen.sam tests/data/FH028_parasail_reference_filtered_fulllen.sam --ref tests/data/reference.fasta --pod5_dir tests/data/ --subsample 200 -o tests/output/signals_FH017,FH028_200.pckl
+usage: modorado extract_signal [-h] -a ALIGNMENT -r REF -p POD5 --subsample SUBSAMPLE -o
+                               OUTPUT
 
+options:
+  -h, --help            show this help message and exit
+  -a ALIGNMENT, --alignment ALIGNMENT
+                        The alignment file of the sample
+  -r REF, --ref REF     The reference fasta file
+  -p POD5, --pod5 POD5  The locations of the pod5 file
+  --subsample SUBSAMPLE
+                        The (maximum) number of subsamples per tRNA (which is not
+                        necessarily reached by low coverage samples)
+  -o OUTPUT, --output OUTPUT
+                        Output python pickle object storing signal data of subsampled tRNA
+                        reads
 ```
-Here, we need to specify the samples (comma separated, as many as needed, but the pod5 files should be listed in the same order as the sample list), and the location of their pod5 files. The subsample parameter is the number of subsampled reads.
-This generates a pickle object in the output folder, containing the extracted signals for subsequent analysis or plotting.
+Here, we need to specify the samples (comma separated, as many as needed, but the pod5 files should be listed in the same order as the sample list), and the location of their pod5 files. The subsample parameter is the number of subsampled reads. This generates a pickle object in the output folder, containing the extracted signals for subsequent analysis or plotting.
+
+An example command can be as follows
+```
+modorado extract_signal -a tests/data/FH017_parasail_reference_filtered_fulllen.sam -r tests/data/reference.fasta -p tests/data/FH017.pod5 --subsample 200 -o tests/output/signals_FH017_200.pckl
+```
 ### Plotting the signals of two samples (example Fig.5B in paper)
 We can make signal plots comparing two samples by running the following. The example given is for Fig.5B of the manuscript on bioRxiv. 
 ```
