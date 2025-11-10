@@ -20,58 +20,100 @@ def get_signal(dim, x, signal_calibrated, signal_cpts, stride):
                 signal[ref_pos * stride + step_i] = np.median(subchunk)
     return signal
 
-def extract_signal(args):
+def extract_signal_single(args):
     reference = pysam.FastaFile(args.ref)
-    samples = args.samples
-    pod5s = args.pod5s
-
+    samfile = pysam.AlignmentFile(args.alignment, "r")
+    pod5file = pod5.DatasetReader(args.pod5) 
     n_sub = int(args.subsample)
     output_file = args.output
-    align_files = args.alignment
-
-    if len(align_files) != len(samples):
-        raise Exception("The number of samples do not match the number of alignment samfiles.")
+    print("Processing alignment file ", args.alignment)
 
     ref2sigs = {}
-    for i in range(len(samples)):
-        sample = samples[i]
-        print(sample)
-        samfile = pysam.AlignmentFile(align_files[i], "r")
-        pod5file = pod5.DatasetReader(pod5s[i]) 
+    for ref in reference.references:
+        ref2sigs[ref] = []
 
-        ref2sigs[sample] = {}
-        for ref in reference.references:
-            ref2sigs[sample][ref] = []
+    counter, iter = 0, samfile.fetch()
+    for x in iter:
+        if x.reference_name[0] != "S" and len(ref2sigs[x.reference_name]) < n_sub: 
+            counter += 1
+            stride, move, ts = x.get_tag("mv")[0], np.array(x.get_tag("mv")[1:]), x.get_tag('ts')
+            move_cpts = np.where(move == 1)[0]
+            signal_cpts = ts + move_cpts * stride
 
-        counter, iter = 0, samfile.fetch()
-        for x in iter:
-            if x.reference_name[0] != "S" and len(ref2sigs[sample][x.reference_name]) < n_sub: 
-                counter += 1
-                stride, move, ts = x.get_tag("mv")[0], np.array(x.get_tag("mv")[1:]), x.get_tag('ts')
-                move_cpts = np.where(move == 1)[0]
-                signal_cpts = ts + move_cpts * stride
+            read_record, ref_seq = pod5file.get_read(x.query_name), reference.fetch(x.reference_name)
 
-                read_record, ref_seq = pod5file.get_read(x.query_name), reference.fetch(x.reference_name)
-
-                if read_record != None: # no read splitting, original read_id exists
-                    signal_calibrated = read_record.calibrate_signal_array(read_record.signal)
-                    ref_signal = get_signal(stride * len(ref_seq), x, signal_calibrated, signal_cpts, stride)
-                    
-                else: # read has been split, new id applies
-                    # print(x)
-                    parent_id = x.get_tag("pi")
-                    parent_record = pod5file.get_read(parent_id)
-                    signal_calibrated = parent_record.calibrate_signal_array(parent_record.signal)
-                    signal_cpts = signal_cpts + x.get_tag("sp")
-                    ref_signal = get_signal(stride * len(ref_seq), x, signal_calibrated, signal_cpts, stride)
+            if read_record != None: # no read splitting, original read_id exists
+                signal_calibrated = read_record.calibrate_signal_array(read_record.signal)
+                ref_signal = get_signal(stride * len(ref_seq), x, signal_calibrated, signal_cpts, stride)
                 
-                matches = set(list(zip(*x.get_aligned_pairs(matches_only=True)))[1]) # returns the matched positions on the reference
-                ref2sigs[sample][x.reference_name].append((ref_signal, matches))
+            else: # read has been split, new id applies
+                # print(x)
+                parent_id = x.get_tag("pi")
+                parent_record = pod5file.get_read(parent_id)
+                signal_calibrated = parent_record.calibrate_signal_array(parent_record.signal)
+                signal_cpts = signal_cpts + x.get_tag("sp")
+                ref_signal = get_signal(stride * len(ref_seq), x, signal_calibrated, signal_cpts, stride)
+            
+            matches = set(list(zip(*x.get_aligned_pairs(matches_only=True)))[1]) # returns the matched positions on the reference
+            ref2sigs[x.reference_name].append((ref_signal, matches))
 
-        samfile.close()
+    samfile.close()
 
     with open(output_file, 'wb') as handle:
         pickle.dump(ref2sigs, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+# def extract_signal(args):
+#     reference = pysam.FastaFile(args.ref)
+#     samples = args.samples
+#     pod5s = args.pod5s
+
+#     n_sub = int(args.subsample)
+#     output_file = args.output
+#     align_files = args.alignment
+
+#     if len(align_files) != len(samples):
+#         raise Exception("The number of samples do not match the number of alignment samfiles.")
+
+#     ref2sigs = {}
+#     for i in range(len(samples)):
+#         sample = samples[i]
+#         print(sample)
+#         samfile = pysam.AlignmentFile(align_files[i], "r")
+#         pod5file = pod5.DatasetReader(pod5s[i]) 
+
+#         ref2sigs[sample] = {}
+#         for ref in reference.references:
+#             ref2sigs[sample][ref] = []
+
+#         counter, iter = 0, samfile.fetch()
+#         for x in iter:
+#             if x.reference_name[0] != "S" and len(ref2sigs[sample][x.reference_name]) < n_sub: 
+#                 counter += 1
+#                 stride, move, ts = x.get_tag("mv")[0], np.array(x.get_tag("mv")[1:]), x.get_tag('ts')
+#                 move_cpts = np.where(move == 1)[0]
+#                 signal_cpts = ts + move_cpts * stride
+
+#                 read_record, ref_seq = pod5file.get_read(x.query_name), reference.fetch(x.reference_name)
+
+#                 if read_record != None: # no read splitting, original read_id exists
+#                     signal_calibrated = read_record.calibrate_signal_array(read_record.signal)
+#                     ref_signal = get_signal(stride * len(ref_seq), x, signal_calibrated, signal_cpts, stride)
+                    
+#                 else: # read has been split, new id applies
+#                     # print(x)
+#                     parent_id = x.get_tag("pi")
+#                     parent_record = pod5file.get_read(parent_id)
+#                     signal_calibrated = parent_record.calibrate_signal_array(parent_record.signal)
+#                     signal_cpts = signal_cpts + x.get_tag("sp")
+#                     ref_signal = get_signal(stride * len(ref_seq), x, signal_calibrated, signal_cpts, stride)
+                
+#                 matches = set(list(zip(*x.get_aligned_pairs(matches_only=True)))[1]) # returns the matched positions on the reference
+#                 ref2sigs[sample][x.reference_name].append((ref_signal, matches))
+
+#         samfile.close()
+
+#     with open(output_file, 'wb') as handle:
+#         pickle.dump(ref2sigs, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 def get_signal_median(sample, trna, ref2sigs):
     signal_list = np.zeros((len(ref2sigs[sample][trna]), len(ref2sigs[sample][trna][0][0])))

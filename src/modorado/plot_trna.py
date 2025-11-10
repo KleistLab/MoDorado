@@ -78,7 +78,7 @@ def plot_trna(args):
                 cmap=cmap, #"YlOrRd", 
                 cbar=True, 
                 cbar_kws={"shrink": 0.5},  
-                yticklabels=[key[5:-2] for key in trna2index.keys()],
+                yticklabels=[key for key in trna2index.keys()],
                 xticklabels=False,
                 edgecolors = 'white',
                 linewidths=1,

@@ -1,5 +1,5 @@
 import argparse
-from .signal_tools import extract_signal, plot_signal
+from .signal_tools import extract_signal_single, plot_signal
 from .filter_parasail import filter
 from .parse_dorado import parse_dorado
 from .dist_compare import KL
@@ -46,15 +46,24 @@ def main():
     plot_trna_parser.add_argument("--mod", required=True, choices = ["m6A", "inosine", "m5C", "pseU", "Am", "Cm", "Gm", "Um"], help="The modification type in Dorado, must be one of the following: m6A, inosine, m5C, pseU, Am, Cm, Gm, Um")
     plot_trna_parser.set_defaults(func=plot_trna)               
 
-    # To extract signals from a list of samples 
+    # # To extract signals from a list of samples 
+    # extract_parser = subparsers.add_parser("extract_signal", help="Extract signals from a list of samples")
+    # extract_parser.add_argument("--samples", nargs='+', type=str, required=True, help="A list of samples separated by comma, e.g. FH017,FH018,FH019")
+    # extract_parser.add_argument("-a", "--alignment", nargs='+', type=str, required=True, help="The alignment files corresponding to the samples")
+    # extract_parser.add_argument("--ref", type=str, required=True, help="The reference fasta file")
+    # extract_parser.add_argument("--pod5s",  nargs='+', type=str, required=True, help="The locations of the pod5 files separated by comma, e.g. FH017.pod5,FH028.pod5")
+    # extract_parser.add_argument("--subsample", type=str, required=True, help="The (maximum) number of subsamples per tRNA (which is not necessarily reached by low coverage samples)")
+    # extract_parser.add_argument("-o", "--output", required=True, type=str, help="Output python pickle object storing signal data of subsampled tRNA reads")
+    # extract_parser.set_defaults(func=extract_signal)
+
+    # To extract signals from a single sample
     extract_parser = subparsers.add_parser("extract_signal", help="Extract signals from a list of samples")
-    extract_parser.add_argument("--samples", nargs='+', type=str, required=True, help="A list of samples separated by comma, e.g. FH017,FH018,FH019")
-    extract_parser.add_argument("-a", "--alignment", nargs='+', type=str, required=True, help="The alignment files corresponding to the samples")
-    extract_parser.add_argument("--ref", type=str, required=True, help="The reference fasta file")
-    extract_parser.add_argument("--pod5s",  nargs='+', type=str, required=True, help="The locations of the pod5 files separated by comma, e.g. FH017.pod5,FH028.pod5")
+    extract_parser.add_argument("-a", "--alignment", type=str, required=True, help="The alignment file of the sample")
+    extract_parser.add_argument("-r", "--ref", type=str, required=True, help="The reference fasta file")
+    extract_parser.add_argument("-p", "--pod5", type=str, required=True, help="The locations of the pod5 file")
     extract_parser.add_argument("--subsample", type=str, required=True, help="The (maximum) number of subsamples per tRNA (which is not necessarily reached by low coverage samples)")
     extract_parser.add_argument("-o", "--output", required=True, type=str, help="Output python pickle object storing signal data of subsampled tRNA reads")
-    extract_parser.set_defaults(func=extract_signal)
+    extract_parser.set_defaults(func=extract_signal_single)
 
     # To plot signals centering a particular position between two samples 
     plot_parser = subparsers.add_parser("plot", help="Plot signals centering a particular position between two samples")
