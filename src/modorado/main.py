@@ -47,7 +47,6 @@ def main():
     plot_trna_parser.add_argument("--mod", required=True, choices = ["m6A", "inosine", "m5C", "pseU", "Am", "Cm", "Gm", "Um"], help="The modification type in Dorado, must be one of the following: m6A, inosine, m5C, pseU, Am, Cm, Gm, Um")
     plot_trna_parser.set_defaults(func=plot_trna)               
 
-
     # To extract signals from a single sample
     extract_parser = subparsers.add_parser("extract_signal", help="Extract signals from a list of samples")
     extract_parser.add_argument("-a", "--alignment", type=str, required=True, help="The alignment file of the sample")
@@ -67,7 +66,7 @@ def main():
     plot_parser.add_argument("--annotation", type=str, required=True, help="The annotation file with nucleotide and their positions")
     plot_parser.add_argument("-o", "--output", type=str, required=True, help="The output plot location")
     plot_parser.add_argument("--ymax", type=int, required=False, default = 110, help="Optional max for the y-axis")
-    plot_parser.add_argument("--offset", type=float, required=False, help="If set, offset is no longer computed from data")
+    # plot_parser.add_argument("--offset", type=float, required=False, help="If set, offset is no longer computed from data")
     plot_parser.add_argument("--norm", type=float, required=False, default = 1, help="If set, normalise the signal") # to be improved
     plot_parser.set_defaults(func=plot_signal)
 

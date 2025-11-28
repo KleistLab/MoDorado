@@ -76,8 +76,8 @@ def plot_signal(args, stride = 6):
     if len(args.samples) != len(args.signals):
         raise Exception("The number of samples do not match the number of pickle files.")
 
-    wt, mt = args.samples[0], args.samples[1] 
-    print("WT: ", wt, "MT: ", mt)
+    wt, mts = args.samples[0], args.samples[1:] 
+    print("WT: ", wt, "MT: ", mts)
     ref2sigs = {}
     for sample_i in range(len(args.samples)):
         with open(args.signals[sample_i], 'rb') as handle:
@@ -97,30 +97,35 @@ def plot_signal(args, stride = 6):
         kmer_seq = kmer_seq + df_trna_cleared.iloc[row]["nucleotide"]
     print(kmer_seq)
 
-    offset = args.offset
-    if args.offset is None:
+    # offset = args.offset
+    # if args.offset is None:
+    offsets = [0]
+    for mt in mts:
         diff_median = get_signal_median(mt, trna, ref2sigs) - get_signal_median(wt, trna, ref2sigs)
         offset = np.median(diff_median)
-    print("offset = ", offset)
+        print(f"For {mt} the offset = {offset}")
+        offsets.append(offset)
     
     sns.set(rc = {'figure.figsize': (10, 6)})   
     sns.set_context("paper", font_scale = 2)
     sns.set_style("ticks")
+    custom_palette = sns.color_palette("husl", n_colors=len(args.samples))
 
     kmer_i = 23 + row_pos # 23 is the 5' adapter length in the reference
     length = kmer_len * stride
     x, y, hue = [], [], []
-    for sample in [wt, mt]:
+    for sample_i in range(len(args.samples)):
+        sample = args.samples[sample_i]
         for i in range(len(ref2sigs[sample][trna])):
             signal_chunk = ref2sigs[sample][trna][i][0][(kmer_i - kmer_len//2 - 2) * stride : (kmer_i + kmer_len//2 - 1) * stride]
             if 0 not in signal_chunk:
                 if sample == wt:
-                    y = y + list( (signal_chunk + offset) * args.norm )
+                    y = y + list( (signal_chunk + offsets[sample_i]) * args.norm )
                 else:
                     y = y + list(signal_chunk)       
                 x = x + list(np.arange(0, length)) # signal positions to be plotted on the x-axis
                 hue = hue + [sample] * length
-    sns.lineplot(x = x, y = y, hue = hue, errorbar="sd", palette = ["#008080","#FF7F50"], lw=2, alpha=0.7)
+    sns.lineplot(x = x, y = y, hue = hue, errorbar="sd", palette = custom_palette, lw=2, alpha=0.7)
     plt.vlines(x = np.arange(stride, length, stride), ymin = 0, ymax = args.ymax+20, ls="--", color = "grey", lw=0.5)
     for base_i in range(len(kmer_seq)):
             plt.text(base_i * 6 +1, args.ymax+10, kmer_seq[base_i])
